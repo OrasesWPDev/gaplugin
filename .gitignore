@@ -6,6 +6,9 @@
 .DS_Store
 Thumbs.db
 
+# Project-specific
+# (add project-specific ignores here)
+
 # Dependencies
 node_modules/
 vendor/
