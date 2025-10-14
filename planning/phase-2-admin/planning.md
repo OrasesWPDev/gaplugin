@@ -67,19 +67,19 @@ wp-content/plugins/ga-plugin/
 **See master plan for complete implementation code:**
 
 - **Master Plan Location:** `@TRACKING-SCRIPT-MANAGER-PLAN.md` (Lines 420-578)
-- **Key Section:** Phase 3: Meta Boxes & Fields (`class-tsm-meta-boxes.php`)
+- **Key Section:** Phase 3: Meta Boxes & Fields (`class-gap-meta-boxes.php`)
 
 **Important Notes for Implementation:**
 
 1. **Update all TSM references to GAP:**
-   - Class name: `GAP_Meta_Box` (not TSM_Meta_Boxes)
-   - Function prefix: `gap_` (not `tsm_`)
-   - Nonce action: `gap_save_meta_box` (not `tsm_save_meta_boxes`)
-   - Text domain: `ga-plugin` (not `tracking-script-manager`)
+   - Class name: `GAP_Meta_Box` (not GAP_Meta_Boxes)
+   - Function prefix: `gap_` (not `gap_`)
+   - Nonce action: `gap_save_meta_box` (not `gap_save_meta_boxes`)
+   - Text domain: `ga-plugin` (not `ga-plugin`)
 
 2. **Meta Key Changes:**
-   - Use `_gap_` prefix instead of `_tsm_`
-   - Example: `_gap_tracking_code` instead of `_tsm_script_content`
+   - Use `_gap_` prefix instead of `_gap_`
+   - Example: `_gap_tracking_code` instead of `_gap_script_content`
 
 3. **File Naming:**
    - Main class: `includes/admin/class-gap-meta-box.php`

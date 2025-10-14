@@ -34,7 +34,7 @@ You're building a WordPress plugin using a **phased development approach** with 
 ```
 gaplugin/
 ├── START-HERE.md                    ← YOU ARE HERE
-├── TRACKING-SCRIPT-MANAGER-PLAN.md  ← Master plan (reference only)
+├── GA-PLUGIN-PLAN.md                ← Master plan (reference only)
 ├── .claude/
 │   ├── CLAUDE.md                    ← Orchestration hub
 │   ├── agents/                      ← AI specialists (6 experts)
@@ -692,7 +692,7 @@ git branch -d [branch-name]     # Delete merged branch
 
 - **Git workflow details:** See `planning/GIT-WORKFLOW.md`
 - **Orchestration overview:** See `.claude/CLAUDE.md`
-- **Master plan:** See `TRACKING-SCRIPT-MANAGER-PLAN.md`
+- **Master plan:** See `GA-PLUGIN-PLAN.md`
 - **Phase-specific details:** See `planning/phase-[X]-[name]/planning.md`
 
 ---

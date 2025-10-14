@@ -1,7 +1,7 @@
 # GA Plugin - Development Orchestration
 
 ## Quick Links
-- **Master Plan:** @TRACKING-SCRIPT-MANAGER-PLAN.md
+- **Master Plan:** @GA-PLUGIN-PLAN.md
 - **Phase Plans:** @planning/
 - **Agents:** @.claude/agents/
 - **Commands:** @.claude/commands/

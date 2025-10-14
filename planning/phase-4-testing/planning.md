@@ -155,7 +155,7 @@ Use `/review-phase 4` to trigger code reviewer on all files.
 ### Code Quality Checklist
 
 - [ ] All functions prefixed with `gap_` or in `GAP_` class
-- [ ] No `TSM_` or `tsm_` references remain
+- [ ] No `GAP_` or `gap_` references remain
 - [ ] All text domains are `ga-plugin`
 - [ ] WordPress Coding Standards followed
 - [ ] Yoda conditions used
@@ -280,7 +280,7 @@ Test with common themes:
   - [ ] `GAP_VERSION` constant
   - [ ] `README.md`
 - [ ] All TSM references replaced with GAP
-- [ ] All `tracking-script-manager` replaced with `ga-plugin`
+- [ ] All `ga-plugin` replaced with `ga-plugin`
 
 ### Git & GitHub
 

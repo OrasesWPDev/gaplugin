@@ -1,9 +1,9 @@
-# Tracking Script Manager Plugin - Detailed Planning Document
+# GA Plugin - Detailed Planning Document
 
 ## Project Overview
 
-**Plugin Name:** Tracking Script Manager
-**Slug:** tracking-script-manager
+**Plugin Name:** GA Plugin
+**Slug:** ga-plugin
 **Purpose:** WordPress plugin for managing Google Analytics 4 (GA4) and Google Tag Manager (GTM) scripts with granular control over placement and scope
 **Dependencies:** None - fully standalone
 **WordPress Version:** 6.0+
@@ -47,15 +47,15 @@
 
 ### Plugin Structure
 ```
-wp-content/plugins/tracking-script-manager/
-├── tracking-script-manager.php          # Main plugin file (plugin header, constants, initialization)
+wp-content/plugins/ga-plugin/
+├── ga-plugin.php          # Main plugin file (plugin header, constants, initialization)
 ├── includes/
-│   ├── class-tsm-activator.php          # Activation/deactivation logic
-│   ├── class-tsm-cpt.php                # Custom Post Type registration
-│   ├── class-tsm-meta-boxes.php         # Meta boxes and field handling
-│   ├── class-tsm-conflict-detector.php  # Duplicate script detection and ID extraction
-│   ├── class-tsm-frontend.php           # Frontend script output logic
-│   └── class-tsm-admin.php              # Admin UI enhancements
+│   ├── class-gap-activator.php          # Activation/deactivation logic
+│   ├── class-gap-cpt.php                # Custom Post Type registration
+│   ├── class-gap-meta-boxes.php         # Meta boxes and field handling
+│   ├── class-gap-conflict-detector.php  # Duplicate script detection and ID extraction
+│   ├── class-gap-frontend.php           # Frontend script output logic
+│   └── class-gap-admin.php              # Admin UI enhancements
 ├── assets/
 │   ├── css/
 │   │   └── admin.css                    # Minimal admin styling
@@ -72,7 +72,7 @@ wp-content/plugins/tracking-script-manager/
 
 ### Phase 1: Core Plugin Setup (Estimated: 2-3 hours)
 
-#### 1.1 Main Plugin File (`tracking-script-manager.php`)
+#### 1.1 Main Plugin File (`ga-plugin.php`)
 
 **Purpose:** Plugin bootstrap, define constants, load classes
 
@@ -80,8 +80,8 @@ wp-content/plugins/tracking-script-manager/
 ```php
 <?php
 /**
- * Plugin Name:       Tracking Script Manager
- * Plugin URI:        https://github.com/YOUR-ORG/tracking-script-manager
+ * Plugin Name:       GA Plugin
+ * Plugin URI:        https://github.com/YOUR-ORG/ga-plugin
  * Description:       Manage Google Analytics 4 (GA4) and Google Tag Manager (GTM) scripts with granular placement and scope control
  * Version:           1.0.0
  * Requires at least: 6.0
@@ -90,7 +90,7 @@ wp-content/plugins/tracking-script-manager/
  * Author URI:        https://yourcompany.com
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       tracking-script-manager
+ * Text Domain:       ga-plugin
  * Domain Path:       /languages
  */
 
@@ -100,16 +100,16 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('TSM_VERSION', '1.0.0');
-define('TSM_PLUGIN_FILE', __FILE__);
-define('TSM_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('TSM_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('TSM_PLUGIN_BASENAME', plugin_basename(__FILE__));
+define('GAP_VERSION', '1.0.0');
+define('GAP_PLUGIN_FILE', __FILE__);
+define('GAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('GAP_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('GAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
 // Autoload classes
 spl_autoload_register(function ($class) {
-    $prefix = 'TSM_';
-    $base_dir = TSM_PLUGIN_DIR . 'includes/';
+    $prefix = 'GAP_';
+    $base_dir = GAP_PLUGIN_DIR . 'includes/';
 
     $len = strlen($prefix);
     if (strncmp($prefix, $class, $len) !== 0) {
@@ -125,33 +125,33 @@ spl_autoload_register(function ($class) {
 });
 
 // Activation/Deactivation hooks
-register_activation_hook(__FILE__, array('TSM_Activator', 'activate'));
-register_deactivation_hook(__FILE__, array('TSM_Activator', 'deactivate'));
+register_activation_hook(__FILE__, array('GAP_Activator', 'activate'));
+register_deactivation_hook(__FILE__, array('GAP_Activator', 'deactivate'));
 
 // Initialize plugin
-add_action('plugins_loaded', 'tsm_init');
-function tsm_init() {
+add_action('plugins_loaded', 'gap_init');
+function gap_init() {
     // Load text domain for translations
-    load_plugin_textdomain('tracking-script-manager', false, dirname(TSM_PLUGIN_BASENAME) . '/languages');
+    load_plugin_textdomain('ga-plugin', false, dirname(GAP_PLUGIN_BASENAME) . '/languages');
 
     // Initialize core components
-    TSM_CPT::get_instance();
-    TSM_Meta_Boxes::get_instance();
-    TSM_Conflict_Detector::get_instance();
-    TSM_Frontend::get_instance();
-    TSM_Admin::get_instance();
+    GAP_CPT::get_instance();
+    GAP_Meta_Boxes::get_instance();
+    GAP_Conflict_Detector::get_instance();
+    GAP_Frontend::get_instance();
+    GAP_Admin::get_instance();
 }
 ```
 
 **Security Considerations:**
 - `ABSPATH` check prevents direct file access
-- All constants use consistent prefix (`TSM_`)
+- All constants use consistent prefix (`GAP_`)
 - Autoloader follows WordPress conventions
 - Text domain for internationalization
 
 ---
 
-### Phase 2: Custom Post Type (`class-tsm-cpt.php`) (Estimated: 1-2 hours)
+### Phase 2: Custom Post Type (`class-gap-cpt.php`) (Estimated: 1-2 hours)
 
 **Purpose:** Register `tracking_script` CPT with proper capabilities and labels
 
@@ -163,7 +163,7 @@ function tsm_init() {
 
 **Implementation Outline:**
 ```php
-class TSM_CPT {
+class GAP_CPT {
     private static $instance = null;
     const POST_TYPE = 'tracking_script';
 
@@ -182,7 +182,7 @@ class TSM_CPT {
 
     public function register_post_type() {
         $args = array(
-            'label'               => __('Tracking Scripts', 'tracking-script-manager'),
+            'label'               => __('Tracking Scripts', 'ga-plugin'),
             'labels'              => $this->get_labels(),
             'public'              => false,
             'publicly_queryable'  => false,
@@ -218,11 +218,11 @@ class TSM_CPT {
         $new_columns = array();
         $new_columns['cb'] = $columns['cb'];
         $new_columns['title'] = $columns['title'];
-        $new_columns['tracking_ids'] = __('Tracking IDs', 'tracking-script-manager');
-        $new_columns['placement'] = __('Placement', 'tracking-script-manager');
-        $new_columns['scope'] = __('Scope', 'tracking-script-manager');
-        $new_columns['target_pages'] = __('Target Pages', 'tracking-script-manager');
-        $new_columns['status'] = __('Status', 'tracking-script-manager');
+        $new_columns['tracking_ids'] = __('Tracking IDs', 'ga-plugin');
+        $new_columns['placement'] = __('Placement', 'ga-plugin');
+        $new_columns['scope'] = __('Scope', 'ga-plugin');
+        $new_columns['target_pages'] = __('Target Pages', 'ga-plugin');
+        $new_columns['status'] = __('Status', 'ga-plugin');
         $new_columns['date'] = $columns['date'];
 
         return $new_columns;
@@ -231,12 +231,12 @@ class TSM_CPT {
     public function render_custom_columns($column, $post_id) {
         switch ($column) {
             case 'tracking_ids':
-                $extracted_ids = get_post_meta($post_id, '_tsm_extracted_ids', true);
+                $extracted_ids = get_post_meta($post_id, '_gap_extracted_ids', true);
                 if (!empty($extracted_ids) && is_array($extracted_ids)) {
                     $ids_output = array();
                     foreach ($extracted_ids as $id_data) {
                         $ids_output[] = sprintf(
-                            '<span class="tsm-tracking-id tsm-tracking-id-%s" title="%s">%s</span>',
+                            '<span class="gap-tracking-id gap-tracking-id-%s" title="%s">%s</span>',
                             esc_attr($id_data['type']),
                             esc_attr($id_data['name']),
                             esc_html($id_data['id'])
@@ -244,18 +244,18 @@ class TSM_CPT {
                     }
                     echo implode('<br>', $ids_output);
                 } else {
-                    echo '<span style="color: #999;">' . __('None detected', 'tracking-script-manager') . '</span>';
+                    echo '<span style="color: #999;">' . __('None detected', 'ga-plugin') . '</span>';
                 }
                 break;
 
             case 'placement':
-                $placement = get_post_meta($post_id, '_tsm_placement', true);
+                $placement = get_post_meta($post_id, '_gap_placement', true);
                 if ($placement) {
                     $placement_labels = array(
-                        'head' => __('Head', 'tracking-script-manager'),
-                        'body_top' => __('Body Top', 'tracking-script-manager'),
-                        'body_bottom' => __('Body Bottom', 'tracking-script-manager'),
-                        'footer' => __('Footer', 'tracking-script-manager'),
+                        'head' => __('Head', 'ga-plugin'),
+                        'body_top' => __('Body Top', 'ga-plugin'),
+                        'body_bottom' => __('Body Bottom', 'ga-plugin'),
+                        'footer' => __('Footer', 'ga-plugin'),
                     );
                     echo esc_html($placement_labels[$placement] ?? $placement);
                 } else {
@@ -264,24 +264,24 @@ class TSM_CPT {
                 break;
 
             case 'scope':
-                $scope = get_post_meta($post_id, '_tsm_scope', true);
+                $scope = get_post_meta($post_id, '_gap_scope', true);
                 if ($scope === 'global') {
-                    echo __('Global', 'tracking-script-manager');
+                    echo __('Global', 'ga-plugin');
                 } elseif ($scope === 'specific_pages') {
-                    echo __('Specific Pages', 'tracking-script-manager');
+                    echo __('Specific Pages', 'ga-plugin');
                 } else {
                     echo '—';
                 }
                 break;
 
             case 'target_pages':
-                $scope = get_post_meta($post_id, '_tsm_scope', true);
+                $scope = get_post_meta($post_id, '_gap_scope', true);
                 if ($scope === 'specific_pages') {
-                    $target_pages = get_post_meta($post_id, '_tsm_target_pages', true);
+                    $target_pages = get_post_meta($post_id, '_gap_target_pages', true);
                     if (is_array($target_pages) && !empty($target_pages)) {
-                        echo count($target_pages) . ' ' . __('pages', 'tracking-script-manager');
+                        echo count($target_pages) . ' ' . __('pages', 'ga-plugin');
                     } else {
-                        echo '0 ' . __('pages', 'tracking-script-manager');
+                        echo '0 ' . __('pages', 'ga-plugin');
                     }
                 } else {
                     echo '—';
@@ -289,11 +289,11 @@ class TSM_CPT {
                 break;
 
             case 'status':
-                $is_active = get_post_meta($post_id, '_tsm_is_active', true);
+                $is_active = get_post_meta($post_id, '_gap_is_active', true);
                 if ($is_active === '1') {
-                    echo '<span style="color: #46b450;">● ' . __('Active', 'tracking-script-manager') . '</span>';
+                    echo '<span style="color: #46b450;">● ' . __('Active', 'ga-plugin') . '</span>';
                 } else {
-                    echo '<span style="color: #999;">○ ' . __('Inactive', 'tracking-script-manager') . '</span>';
+                    echo '<span style="color: #999;">○ ' . __('Inactive', 'ga-plugin') . '</span>';
                 }
                 break;
         }
@@ -307,7 +307,7 @@ class TSM_CPT {
 
 ---
 
-### Phase 2.5: Conflict Detection System (`class-tsm-conflict-detector.php`) (Estimated: 2-3 hours)
+### Phase 2.5: Conflict Detection System (`class-gap-conflict-detector.php`) (Estimated: 2-3 hours)
 
 **Purpose:** Extract tracking IDs from script content and detect duplicate scripts across the site
 
@@ -320,7 +320,7 @@ class TSM_CPT {
 
 **Implementation Outline:**
 ```php
-class TSM_Conflict_Detector {
+class GAP_Conflict_Detector {
     private static $instance = null;
     private $detected_conflicts = array();
 
@@ -389,7 +389,7 @@ class TSM_Conflict_Detector {
         $conflicts = array();
 
         foreach ($scripts as $script) {
-            $extracted_ids = get_post_meta($script->ID, '_tsm_extracted_ids', true);
+            $extracted_ids = get_post_meta($script->ID, '_gap_extracted_ids', true);
 
             if (!empty($extracted_ids) && is_array($extracted_ids)) {
                 foreach ($extracted_ids as $id_data) {
@@ -488,7 +488,7 @@ class TSM_Conflict_Detector {
 
 ---
 
-### Phase 3: Meta Boxes & Fields (`class-tsm-meta-boxes.php`) (Estimated: 3-4 hours)
+### Phase 3: Meta Boxes & Fields (`class-gap-meta-boxes.php`) (Estimated: 3-4 hours)
 
 **Purpose:** Native WordPress meta boxes for script configuration
 
@@ -496,17 +496,17 @@ class TSM_Conflict_Detector {
 
 | Field Name                | Type             | Description                                      |
 |---------------------------|------------------|--------------------------------------------------|
-| `_tsm_script_content`     | Textarea         | The actual script/tag code                       |
-| `_tsm_placement`          | Select           | head, body_top, body_bottom, footer              |
-| `_tsm_scope`              | Select           | global, specific_pages                           |
-| `_tsm_target_pages`       | Checkboxes       | Multi-select page IDs (shown when scope=specific)|
-| `_tsm_is_active`          | Checkbox         | Enable/disable script                            |
-| `_tsm_extracted_ids`      | Array (hidden)   | Auto-extracted tracking IDs (GA4 and GTM only)   |
-| `_tsm_unique_hash`        | String (hidden)  | Hash of script content for duplicate detection   |
+| `_gap_script_content`     | Textarea         | The actual script/tag code                       |
+| `_gap_placement`          | Select           | head, body_top, body_bottom, footer              |
+| `_gap_scope`              | Select           | global, specific_pages                           |
+| `_gap_target_pages`       | Checkboxes       | Multi-select page IDs (shown when scope=specific)|
+| `_gap_is_active`          | Checkbox         | Enable/disable script                            |
+| `_gap_extracted_ids`      | Array (hidden)   | Auto-extracted tracking IDs (GA4 and GTM only)   |
+| `_gap_unique_hash`        | String (hidden)  | Hash of script content for duplicate detection   |
 
 **Implementation Outline:**
 ```php
-class TSM_Meta_Boxes {
+class GAP_Meta_Boxes {
     private static $instance = null;
 
     public static function get_instance() {
@@ -524,8 +524,8 @@ class TSM_Meta_Boxes {
 
     public function add_meta_boxes() {
         add_meta_box(
-            'tsm_script_config',
-            __('Script Configuration', 'tracking-script-manager'),
+            'gap_script_config',
+            __('Script Configuration', 'ga-plugin'),
             array($this, 'render_script_config_meta_box'),
             'tracking_script',
             'normal',
@@ -535,14 +535,14 @@ class TSM_Meta_Boxes {
 
     public function render_script_config_meta_box($post) {
         // Nonce field
-        wp_nonce_field('tsm_save_meta_boxes', 'tsm_meta_nonce');
+        wp_nonce_field('gap_save_meta_boxes', 'gap_meta_nonce');
 
         // Get existing values
-        $script_content = get_post_meta($post->ID, '_tsm_script_content', true);
-        $placement = get_post_meta($post->ID, '_tsm_placement', true);
-        $scope = get_post_meta($post->ID, '_tsm_scope', true);
-        $target_pages = get_post_meta($post->ID, '_tsm_target_pages', true);
-        $is_active = get_post_meta($post->ID, '_tsm_is_active', true);
+        $script_content = get_post_meta($post->ID, '_gap_script_content', true);
+        $placement = get_post_meta($post->ID, '_gap_placement', true);
+        $scope = get_post_meta($post->ID, '_gap_scope', true);
+        $target_pages = get_post_meta($post->ID, '_gap_target_pages', true);
+        $is_active = get_post_meta($post->ID, '_gap_is_active', true);
 
         // Render HTML fields
         // - Textarea for script content
@@ -554,7 +554,7 @@ class TSM_Meta_Boxes {
 
     public function save_meta_boxes($post_id, $post) {
         // Verify nonce
-        if (!isset($_POST['tsm_meta_nonce']) || !wp_verify_nonce($_POST['tsm_meta_nonce'], 'tsm_save_meta_boxes')) {
+        if (!isset($_POST['gap_meta_nonce']) || !wp_verify_nonce($_POST['gap_meta_nonce'], 'gap_save_meta_boxes')) {
             return;
         }
 
@@ -569,35 +569,35 @@ class TSM_Meta_Boxes {
         }
 
         // Sanitize and save each field
-        if (isset($_POST['tsm_script_content'])) {
+        if (isset($_POST['gap_script_content'])) {
             // Use wp_kses_post() to allow safe HTML/scripts
-            $content = wp_kses_post(wp_unslash($_POST['tsm_script_content']));
-            update_post_meta($post_id, '_tsm_script_content', $content);
+            $content = wp_kses_post(wp_unslash($_POST['gap_script_content']));
+            update_post_meta($post_id, '_gap_script_content', $content);
 
             // Extract tracking IDs from script content using Conflict Detector
-            $detector = TSM_Conflict_Detector::get_instance();
+            $detector = GAP_Conflict_Detector::get_instance();
             $extracted_ids = $detector->extract_tracking_ids($content);
-            update_post_meta($post_id, '_tsm_extracted_ids', $extracted_ids);
+            update_post_meta($post_id, '_gap_extracted_ids', $extracted_ids);
 
             // Generate unique hash for duplicate detection
             $unique_hash = md5($content);
-            update_post_meta($post_id, '_tsm_unique_hash', $unique_hash);
+            update_post_meta($post_id, '_gap_unique_hash', $unique_hash);
         }
 
-        if (isset($_POST['tsm_placement'])) {
-            $placement = sanitize_text_field($_POST['tsm_placement']);
+        if (isset($_POST['gap_placement'])) {
+            $placement = sanitize_text_field($_POST['gap_placement']);
             // Validate against allowed values
             $allowed_placements = array('head', 'body_top', 'body_bottom', 'footer');
             if (in_array($placement, $allowed_placements, true)) {
-                update_post_meta($post_id, '_tsm_placement', $placement);
+                update_post_meta($post_id, '_gap_placement', $placement);
             }
         }
 
         // Similar sanitization for other fields...
 
         // Checkbox handling
-        $is_active = isset($_POST['tsm_is_active']) ? '1' : '0';
-        update_post_meta($post_id, '_tsm_is_active', $is_active);
+        $is_active = isset($_POST['gap_is_active']) ? '1' : '0';
+        update_post_meta($post_id, '_gap_is_active', $is_active);
     }
 
     public function enqueue_admin_assets($hook) {
@@ -611,8 +611,8 @@ class TSM_Meta_Boxes {
             return;
         }
 
-        wp_enqueue_style('tsm-admin-css', TSM_PLUGIN_URL . 'assets/css/admin.css', array(), TSM_VERSION);
-        wp_enqueue_script('tsm-admin-js', TSM_PLUGIN_URL . 'assets/js/admin.js', array('jquery'), TSM_VERSION, true);
+        wp_enqueue_style('gap-admin-css', GAP_PLUGIN_URL . 'assets/css/admin.css', array(), GAP_VERSION);
+        wp_enqueue_script('gap-admin-js', GAP_PLUGIN_URL . 'assets/js/admin.js', array('jquery'), GAP_VERSION, true);
     }
 }
 ```
@@ -621,7 +621,7 @@ class TSM_Meta_Boxes {
 
 1. **Nonce Verification:**
    ```php
-   wp_nonce_field('tsm_save_meta_boxes', 'tsm_meta_nonce');
+   wp_nonce_field('gap_save_meta_boxes', 'gap_meta_nonce');
    ```
    - Reference: [WordPress Nonce Documentation](https://developer.wordpress.org/apis/security/nonces/)
 
@@ -649,7 +649,7 @@ class TSM_Meta_Boxes {
 
 ---
 
-### Phase 4: Frontend Output (`class-tsm-frontend.php`) (Estimated: 2-3 hours)
+### Phase 4: Frontend Output (`class-gap-frontend.php`) (Estimated: 2-3 hours)
 
 **Purpose:** Query and output scripts on front-end based on placement and scope
 
@@ -661,7 +661,7 @@ class TSM_Meta_Boxes {
 
 **Implementation Outline:**
 ```php
-class TSM_Frontend {
+class GAP_Frontend {
     private static $instance = null;
     private $scripts_cache = array();
 
@@ -700,12 +700,12 @@ class TSM_Frontend {
             'meta_query'     => array(
                 'relation' => 'AND',
                 array(
-                    'key'     => '_tsm_placement',
+                    'key'     => '_gap_placement',
                     'value'   => $placement,
                     'compare' => '='
                 ),
                 array(
-                    'key'     => '_tsm_is_active',
+                    'key'     => '_gap_is_active',
                     'value'   => '1',
                     'compare' => '='
                 )
@@ -721,12 +721,12 @@ class TSM_Frontend {
         $filtered_scripts = array();
 
         foreach ($scripts as $script) {
-            $scope = get_post_meta($script->ID, '_tsm_scope', true);
+            $scope = get_post_meta($script->ID, '_gap_scope', true);
 
             if ($scope === 'global') {
                 $filtered_scripts[] = $script;
             } elseif ($scope === 'specific_pages' && $current_page_id) {
-                $target_pages = get_post_meta($script->ID, '_tsm_target_pages', true);
+                $target_pages = get_post_meta($script->ID, '_gap_target_pages', true);
                 if (is_array($target_pages) && in_array($current_page_id, $target_pages, true)) {
                     $filtered_scripts[] = $script;
                 }
@@ -779,14 +779,14 @@ class TSM_Frontend {
             return;
         }
 
-        echo "\n<!-- Tracking Script Manager: {$placement} -->\n";
+        echo "\n<!-- GA Plugin: {$placement} -->\n";
 
         // Start output buffering to capture current page HTML
         ob_start();
 
         foreach ($scripts as $script) {
-            $content = get_post_meta($script->ID, '_tsm_script_content', true);
-            $extracted_ids = get_post_meta($script->ID, '_tsm_extracted_ids', true);
+            $content = get_post_meta($script->ID, '_gap_script_content', true);
+            $extracted_ids = get_post_meta($script->ID, '_gap_extracted_ids', true);
 
             if (!$content) {
                 continue;
@@ -802,7 +802,7 @@ class TSM_Frontend {
                 $combined_html = $current_html . $full_page_html;
 
                 // Use Conflict Detector to scan for existing tracking IDs
-                $detector = TSM_Conflict_Detector::get_instance();
+                $detector = GAP_Conflict_Detector::get_instance();
                 $found_ids = $detector->scan_page_html($combined_html, $extracted_ids);
 
                 if (!empty($found_ids)) {
@@ -831,7 +831,7 @@ class TSM_Frontend {
 
         ob_end_flush(); // End buffering and output
 
-        echo "<!-- /Tracking Script Manager: {$placement} -->\n\n";
+        echo "<!-- /GA Plugin: {$placement} -->\n\n";
     }
 
     /**
@@ -867,13 +867,13 @@ class TSM_Frontend {
 
 ---
 
-### Phase 5: Admin Enhancements (`class-tsm-admin.php`) (Estimated: 1-2 hours)
+### Phase 5: Admin Enhancements (`class-gap-admin.php`) (Estimated: 1-2 hours)
 
 **Purpose:** Improve admin UX with custom messages, help tabs, and styling
 
 **Implementation Outline:**
 ```php
-class TSM_Admin {
+class GAP_Admin {
     private static $instance = null;
 
     public static function get_instance() {
@@ -897,13 +897,13 @@ class TSM_Admin {
         }
 
         // Check for duplicate tracking IDs
-        $detector = TSM_Conflict_Detector::get_instance();
+        $detector = GAP_Conflict_Detector::get_instance();
         $conflicts = $detector->get_conflicts();
 
         if (!empty($conflicts)) {
             echo '<div class="notice notice-error">';
-            echo '<p><strong>' . __('Duplicate Tracking IDs Detected!', 'tracking-script-manager') . '</strong></p>';
-            echo '<p>' . __('The following tracking IDs are used in multiple tracking scripts. This may cause tracking issues:', 'tracking-script-manager') . '</p>';
+            echo '<p><strong>' . __('Duplicate Tracking IDs Detected!', 'ga-plugin') . '</strong></p>';
+            echo '<p>' . __('The following tracking IDs are used in multiple tracking scripts. This may cause tracking issues:', 'ga-plugin') . '</p>';
             echo '<ul>';
 
             foreach ($conflicts as $conflict) {
@@ -912,7 +912,7 @@ class TSM_Admin {
 
                 echo '<li>';
                 echo sprintf(
-                    __('<strong>%s</strong> (%s) is used in:', 'tracking-script-manager'),
+                    __('<strong>%s</strong> (%s) is used in:', 'ga-plugin'),
                     $tracking_id,
                     $type_name
                 );
@@ -930,13 +930,13 @@ class TSM_Admin {
             }
 
             echo '</ul>';
-            echo '<p>' . __('<strong>Recommendation:</strong> Each tracking script should use a unique tracking ID. Having the same ID in multiple scripts may result in duplicate data or tracking errors.', 'tracking-script-manager') . '</p>';
+            echo '<p>' . __('<strong>Recommendation:</strong> Each tracking script should use a unique tracking ID. Having the same ID in multiple scripts may result in duplicate data or tracking errors.', 'ga-plugin') . '</p>';
             echo '</div>';
         }
 
         // Warning about script testing
         echo '<div class="notice notice-info is-dismissible">';
-        echo '<p>' . __('Remember to test tracking scripts in a staging environment before deploying to production.', 'tracking-script-manager') . '</p>';
+        echo '<p>' . __('Remember to test tracking scripts in a staging environment before deploying to production.', 'ga-plugin') . '</p>';
         echo '</div>';
     }
 
@@ -947,9 +947,9 @@ class TSM_Admin {
         }
 
         $screen->add_help_tab(array(
-            'id'      => 'tsm_help_overview',
-            'title'   => __('Overview', 'tracking-script-manager'),
-            'content' => '<p>' . __('Use this screen to create and manage tracking scripts...', 'tracking-script-manager') . '</p>'
+            'id'      => 'gap_help_overview',
+            'title'   => __('Overview', 'ga-plugin'),
+            'content' => '<p>' . __('Use this screen to create and manage tracking scripts...', 'ga-plugin') . '</p>'
         ));
 
         // Add more help tabs for Placement, Scope, etc.
@@ -959,23 +959,23 @@ class TSM_Admin {
 
 ---
 
-### Phase 6: Activator (`class-tsm-activator.php`) (Estimated: 30 minutes)
+### Phase 6: Activator (`class-gap-activator.php`) (Estimated: 30 minutes)
 
 **Purpose:** Handle activation/deactivation tasks
 
 **Implementation Outline:**
 ```php
-class TSM_Activator {
+class GAP_Activator {
     public static function activate() {
         // Register CPT (required for flush_rewrite_rules)
-        TSM_CPT::get_instance()->register_post_type();
+        GAP_CPT::get_instance()->register_post_type();
 
         // Flush rewrite rules
         flush_rewrite_rules();
 
         // Set default options if needed
-        if (get_option('tsm_version') === false) {
-            add_option('tsm_version', TSM_VERSION);
+        if (get_option('gap_version') === false) {
+            add_option('gap_version', GAP_VERSION);
         }
     }
 
@@ -1024,10 +1024,10 @@ class TSM_Activator {
 
 ```php
 // Creating nonce
-wp_nonce_field('tsm_save_meta_boxes', 'tsm_meta_nonce');
+wp_nonce_field('gap_save_meta_boxes', 'gap_meta_nonce');
 
 // Verifying nonce
-if (!wp_verify_nonce($_POST['tsm_meta_nonce'], 'tsm_save_meta_boxes')) {
+if (!wp_verify_nonce($_POST['gap_meta_nonce'], 'gap_save_meta_boxes')) {
     return;
 }
 ```
@@ -1066,20 +1066,20 @@ if (!current_user_can('manage_options')) {
 - Example AJAX security:
   ```php
   // In PHP
-  wp_localize_script('tsm-admin-js', 'tsmAjax', array(
-      'nonce' => wp_create_nonce('tsm_ajax_nonce')
+  wp_localize_script('gap-admin-js', 'gapAjax', array(
+      'nonce' => wp_create_nonce('gap_ajax_nonce')
   ));
 
   // In JavaScript
   $.ajax({
       data: {
-          action: 'tsm_action',
-          nonce: tsmAjax.nonce
+          action: 'gap_action',
+          nonce: gapAjax.nonce
       }
   });
 
   // In PHP AJAX handler
-  check_ajax_referer('tsm_ajax_nonce', 'nonce');
+  check_ajax_referer('gap_ajax_nonce', 'nonce');
   ```
 
 ### Direct File Access Prevention
@@ -1104,10 +1104,10 @@ if (!defined('ABSPATH')) {
 
 **Key Requirements:**
 1. **Naming Conventions:**
-   - Functions: `tsm_function_name()`
-   - Classes: `TSM_Class_Name`
-   - Constants: `TSM_CONSTANT_NAME`
-   - Files: `class-tsm-class-name.php`
+   - Functions: `gap_function_name()`
+   - Classes: `GAP_Class_Name`
+   - Constants: `GAP_CONSTANT_NAME`
+   - Files: `class-gap-class-name.php`
 
 2. **Indentation:**
    - Use tabs, not spaces
@@ -1142,11 +1142,11 @@ if (!defined('ABSPATH')) {
 ### Single Responsibility Principle
 
 Each class has one job:
-- `TSM_CPT`: Only handles post type registration
-- `TSM_Meta_Boxes`: Only handles meta fields
-- `TSM_Frontend`: Only handles output
-- `TSM_Admin`: Only handles admin UI enhancements
-- `TSM_Conflict_Detector`: Only handles duplicate detection
+- `GAP_CPT`: Only handles post type registration
+- `GAP_Meta_Boxes`: Only handles meta fields
+- `GAP_Frontend`: Only handles output
+- `GAP_Admin`: Only handles admin UI enhancements
+- `GAP_Conflict_Detector`: Only handles duplicate detection
 
 ### Don't Repeat Yourself (DRY)
 
@@ -1265,7 +1265,7 @@ Test on:
 ### Pre-Launch
 
 1. **Code Review:**
-   - [ ] All functions prefixed with `tsm_` or in `TSM_` class
+   - [ ] All functions prefixed with `gap_` or in `GAP_` class
    - [ ] All direct file access checks in place
    - [ ] All user inputs sanitized
    - [ ] All outputs escaped (except intentional script output)
@@ -1326,7 +1326,7 @@ Test on:
 **Deliverable:** Can create and save tracking scripts in admin with automatic ID extraction
 
 ### Phase 2.5: Conflict Detection System (Est. 2-3 hours)
-- [ ] Create TSM_Conflict_Detector class
+- [ ] Create GAP_Conflict_Detector class
 - [ ] Implement tracking ID extraction (GA4 and GTM only)
 - [ ] Implement global conflict detection across all tracking scripts
 - [ ] Implement HTML scanning for duplicate detection across all DOM sections
@@ -1401,7 +1401,7 @@ package-lock.json
 
 ### `README.md` Template
 ```markdown
-# Tracking Script Manager
+# GA Plugin
 
 WordPress plugin for managing Google Analytics 4 (GA4) and Google Tag Manager (GTM) scripts with granular placement and scope control.
 
@@ -1556,7 +1556,7 @@ Refined plugin scope to focus exclusively on Google tracking platforms:
 **Updated Sections:**
 - Project Overview: Explicitly states "Google Analytics 4 (GA4) and Google Tag Manager (GTM)"
 - Enhanced Features: Mentions only GA4/GTM support
-- TSM_Conflict_Detector: Only includes GA4 and GTM regex patterns
+- GAP_Conflict_Detector: Only includes GA4 and GTM regex patterns
 - Testing checklist: Updated to reflect GA4/GTM-only scope
 - Development roadmap: Clarified conflict detection is for Google platforms only
 
@@ -1570,7 +1570,7 @@ Refined plugin scope to focus exclusively on Google tracking platforms:
 
 Added comprehensive conflict detection and prevention system based on client feedback:
 
-1. **New Class: TSM_Conflict_Detector**
+1. **New Class: GAP_Conflict_Detector**
    - Automatically extracts tracking IDs
    - Detects duplicate tracking IDs across all tracking script posts
    - Scans page HTML for existing scripts before output
@@ -1578,8 +1578,8 @@ Added comprehensive conflict detection and prevention system based on client fee
    - Logs conflicts for debugging
 
 2. **Enhanced Meta Fields**
-   - `_tsm_extracted_ids`: Array of auto-extracted tracking IDs
-   - `_tsm_unique_hash`: MD5 hash for duplicate detection
+   - `_gap_extracted_ids`: Array of auto-extracted tracking IDs
+   - `_gap_unique_hash`: MD5 hash for duplicate detection
    - Automatic extraction on save
 
 3. **Enhanced Admin Interface**

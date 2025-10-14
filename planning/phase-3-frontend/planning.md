@@ -67,19 +67,19 @@ wp-content/plugins/ga-plugin/
 **See master plan for complete implementation code:**
 
 - **Master Plan Location:** `@TRACKING-SCRIPT-MANAGER-PLAN.md` (Lines 581-796)
-- **Key Section:** Phase 4: Frontend Output (`class-tsm-frontend.php`)
+- **Key Section:** Phase 4: Frontend Output (`class-gap-frontend.php`)
 
 **Important Notes for Implementation:**
 
 1. **Update all TSM references to GAP:**
-   - Class name: `GAP_Frontend_Output` (not TSM_Frontend)
-   - Function prefix: `gap_` (not `tsm_`)
+   - Class name: `GAP_Frontend_Output` (not GAP_Frontend)
+   - Function prefix: `gap_` (not `gap_`)
    - Cache keys: `gap_compiled_scripts_head`, `gap_compiled_scripts_body`
-   - Text domain: `ga-plugin` (not `tracking-script-manager`)
+   - Text domain: `ga-plugin` (not `ga-plugin`)
 
 2. **Meta Key Changes:**
-   - Use `_gap_` prefix instead of `_tsm_`
-   - Example: `_gap_placement` instead of `_tsm_placement`
+   - Use `_gap_` prefix instead of `_gap_`
+   - Example: `_gap_placement` instead of `_gap_placement`
 
 3. **Post Type Reference:**
    - Use `gap_tracking` instead of `tracking_script`

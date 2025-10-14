@@ -75,19 +75,19 @@ wp-content/plugins/ga-plugin/
 **See master plan for complete implementation code:**
 
 - **Master Plan Location:** `@TRACKING-SCRIPT-MANAGER-PLAN.md` (Lines 239-417)
-- **Key Section:** Phase 2.5: Conflict Detection System (`class-tsm-conflict-detector.php`)
+- **Key Section:** Phase 2.5: Conflict Detection System (`class-gap-conflict-detector.php`)
 
 **Important Notes for Implementation:**
 
 1. **Update all TSM references to GAP:**
-   - Class name: `GAP_Conflict_Detector` (not TSM_Conflict_Detector)
-   - Function prefix: `gap_` (not `tsm_`)
-   - Transient key: `gap_script_scan_results` (not `tsm_...`)
-   - Text domain: `ga-plugin` (not `tracking-script-manager`)
+   - Class name: `GAP_Conflict_Detector` (not GAP_Conflict_Detector)
+   - Function prefix: `gap_` (not `gap_`)
+   - Transient key: `gap_script_scan_results` (not `gap_...`)
+   - Text domain: `ga-plugin` (not `ga-plugin`)
 
 2. **Meta Key Changes:**
-   - Use `_gap_` prefix instead of `_tsm_`
-   - Example: `_gap_extracted_ids` instead of `_tsm_extracted_ids`
+   - Use `_gap_` prefix instead of `_gap_`
+   - Example: `_gap_extracted_ids` instead of `_gap_extracted_ids`
 
 3. **Post Type Reference:**
    - Use `gap_tracking` instead of `tracking_script`
