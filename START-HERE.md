@@ -146,34 +146,7 @@ Before starting, make sure:
 - [ ] You have GitHub CLI (optional but helpful): `gh --version`
 - [ ] Main branch is up to date: `git pull origin main`
 
-### Step 1: Commit Your Setup Files
-
-Right now, you have untracked files. Let's commit them:
-
-```bash
-# Verify you're on main branch
-git branch --show-current
-
-# Add all the new files
-git add .claude/ planning/ .gitignore
-
-# Commit the setup
-git commit -m "feat(setup): add complete development infrastructure
-
-- Add orchestration, agents, and commands
-- Add phase-specific planning documents
-- Add Git workflow guide
-- Enable structured multi-phase development"
-
-# Push to remote
-git push origin main
-```
-
-**What just happened?** You've saved your development infrastructure to Git. Now you're ready to start actual plugin development.
-
----
-
-### Step 2: Start Phase 1 (Foundation)
+### Step 1: Start Phase 1 (Foundation)
 
 Now you'll begin the actual plugin development. Phase 1 builds the foundation.
 
@@ -212,7 +185,7 @@ Can you show me the Phase 1 planning document and help me get started?
 
 ---
 
-### Step 3: Build Phase 1
+### Step 2: Build Phase 1
 
 Now you'll actually build the code. You have two options:
 
@@ -245,7 +218,7 @@ The AI will invoke the `cpt-specialist` agent when needed.
 
 ---
 
-### Step 4: Commit Your Work
+### Step 3: Commit Your Work
 
 As you complete parts of Phase 1, commit your work:
 
@@ -272,7 +245,7 @@ The agent will remind you when to commit.
 
 ---
 
-### Step 5: Review Your Code
+### Step 4: Review Your Code
 
 When Phase 1 is complete, get it reviewed:
 
@@ -291,7 +264,7 @@ If issues are found, fix them, commit, and re-run the review.
 
 ---
 
-### Step 6: Create Pull Request
+### Step 5: Create Pull Request
 
 When Phase 1 is complete and reviewed:
 
@@ -320,7 +293,7 @@ gh pr create --title "Phase 1: Foundation - Core Plugin Setup" \
 
 ---
 
-### Step 7: Merge and Move to Phase 2
+### Step 6: Merge and Move to Phase 2
 
 After your PR is approved:
 
@@ -340,7 +313,7 @@ After your PR is approved:
 
 ---
 
-### Step 8: Understand Parallel Development (Phase 2 + 2.5)
+### Step 7: Understand Parallel Development (Phase 2 + 2.5)
 
 After Phase 1 merges, you can work on Phase 2 and Phase 2.5 **at the same time** (if you want). They are independent.
 
@@ -368,7 +341,7 @@ You can do this in a different Claude Code session:
 
 ---
 
-### Step 9: Continue Through Remaining Phases
+### Step 8: Continue Through Remaining Phases
 
 Repeat the same process for each phase:
 
