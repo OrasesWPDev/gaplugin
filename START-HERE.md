@@ -148,12 +148,7 @@ Before starting, make sure:
 
 ### Step 1: Start Phase 1 (Foundation)
 
-Now you'll begin the actual plugin development. Phase 1 builds the foundation.
-
-#### Option A: Using the Automated Command (Recommended)
-
 ```bash
-# In Claude Code, type this command:
 /start-phase 1
 ```
 
@@ -164,35 +159,11 @@ Now you'll begin the actual plugin development. Phase 1 builds the foundation.
 4. Shows you the Phase 1 planning document
 5. Gives you workflow reminders
 
-#### Option B: Manual Git Commands
-
-```bash
-# Make sure main is up to date
-git checkout main
-git pull origin main
-
-# Create Phase 1 branch
-git checkout -b phase-1-foundation
-
-# Push to remote
-git push -u origin phase-1-foundation
-```
-
-Then in Claude Code:
-```
-Can you show me the Phase 1 planning document and help me get started?
-```
-
 ---
 
 ### Step 2: Build Phase 1
 
-Now you'll actually build the code. You have two options:
-
-#### Option A: Guided Building (Recommended for Beginners)
-
-In Claude Code, type:
-```
+```bash
 /build-phase 1
 ```
 
@@ -202,50 +173,9 @@ In Claude Code, type:
 - Reminds you when to commit
 - Checks your work
 
-#### Option B: Manual Approach
-
-In Claude Code, have a conversation:
-```
-I'm ready to build Phase 1. Can you help me create:
-1. The main plugin file (ga-plugin.php)
-2. The autoloader
-3. The Custom Post Type registration
-
-Let's start with the main plugin file.
-```
-
-The AI will invoke the `cpt-specialist` agent when needed.
-
 ---
 
-### Step 3: Commit Your Work
-
-As you complete parts of Phase 1, commit your work:
-
-```bash
-# After creating main plugin file
-git add ga-plugin.php
-git commit -m "feat(setup): create main plugin file with constants
-
-- Add plugin header with metadata
-- Define plugin constants
-- Add autoloader implementation
-
-Addresses: Phase 1 deliverable (main plugin file)"
-git push
-```
-
-**When to commit:**
-- After creating the main plugin file
-- After implementing the autoloader
-- After creating the CPT class
-- Before requesting a review
-
-The agent will remind you when to commit.
-
----
-
-### Step 4: Review Your Code
+### Step 3: Review Your Code
 
 When Phase 1 is complete, get it reviewed:
 
@@ -264,12 +194,9 @@ If issues are found, fix them, commit, and re-run the review.
 
 ---
 
-### Step 5: Create Pull Request
-
-When Phase 1 is complete and reviewed:
+### Step 4: Create Pull Request
 
 ```bash
-# In Claude Code:
 /finish-phase 1
 ```
 
@@ -280,20 +207,9 @@ When Phase 1 is complete and reviewed:
 4. Adds phase-specific description
 5. Shows you next steps
 
-#### Manual PR Creation
-
-```bash
-# Push final changes
-git push
-
-# Create PR with GitHub CLI
-gh pr create --title "Phase 1: Foundation - Core Plugin Setup" \
-  --body "Complete Phase 1 implementation. See planning/phase-1-foundation/planning.md for details."
-```
-
 ---
 
-### Step 6: Merge and Move to Phase 2
+### Step 5: Merge and Move to Phase 2
 
 After your PR is approved:
 
@@ -313,7 +229,7 @@ After your PR is approved:
 
 ---
 
-### Step 7: Understand Parallel Development (Phase 2 + 2.5)
+### Step 6: Parallel Development (Phase 2 + 2.5)
 
 After Phase 1 merges, you can work on Phase 2 and Phase 2.5 **at the same time** (if you want). They are independent.
 
@@ -341,7 +257,7 @@ You can do this in a different Claude Code session:
 
 ---
 
-### Step 8: Continue Through Remaining Phases
+### Step 7: Continue Through Remaining Phases
 
 Repeat the same process for each phase:
 
