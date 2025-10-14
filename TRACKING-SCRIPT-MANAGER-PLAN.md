@@ -4,7 +4,7 @@
 
 **Plugin Name:** Tracking Script Manager
 **Slug:** tracking-script-manager
-**Purpose:** WordPress plugin for managing Google Analytics (GA), Google Tag Manager (GTM), and other tracking scripts with granular control over placement and scope
+**Purpose:** WordPress plugin for managing Google Analytics 4 (GA4) and Google Tag Manager (GTM) scripts with granular control over placement and scope
 **Dependencies:** None - fully standalone
 **WordPress Version:** 6.0+
 **PHP Version:** 7.4+
@@ -18,7 +18,28 @@
 4. **Native WordPress Implementation**: No third-party plugin dependencies (no ACF, no page builders)
 5. **Security-First**: Follow WordPress Coding Standards and security best practices
 6. **DRY Principle**: Minimal, maintainable codebase
-7. **Auto-Updates**: GitHub-based automatic update system for private repositories
+7. **⭐ NEW: Duplicate Detection System**: Automatically extract tracking IDs and prevent duplicate scripts
+
+### Enhanced Features (Based on Client Feedback)
+
+**Unique Tracking ID Management:**
+- Automatically extracts tracking IDs from script content (GA4 and GTM only)
+- Ensures each tracking script uses unique measurement IDs
+- Displays extracted IDs in admin dashboard for easy identification
+- Validates uniqueness across all tracking script posts
+
+**Duplicate Script Prevention:**
+- Scans all DOM sections (head, body top, body bottom, footer) before injecting scripts
+- Detects if Google tracking IDs already exist on the page (from theme, other plugins, or manual insertion)
+- Automatically skips duplicate script output to prevent double-tracking
+- Logs conflicts with detailed explanations in HTML comments
+- Admin warnings when duplicate IDs detected across multiple tracking scripts
+
+**Benefits:**
+- Prevents accidental double-tracking that skews Google Analytics data
+- Protects against conflicts when multiple team members add tracking codes
+- Alerts administrators when tracking scripts overlap
+- Ensures clean, conflict-free Google tracking implementation
 
 ---
 
@@ -32,11 +53,9 @@ wp-content/plugins/tracking-script-manager/
 │   ├── class-tsm-activator.php          # Activation/deactivation logic
 │   ├── class-tsm-cpt.php                # Custom Post Type registration
 │   ├── class-tsm-meta-boxes.php         # Meta boxes and field handling
+│   ├── class-tsm-conflict-detector.php  # Duplicate script detection and ID extraction
 │   ├── class-tsm-frontend.php           # Frontend script output logic
-│   ├── class-tsm-admin.php              # Admin UI enhancements
-│   ├── class-tsm-updater.php            # GitHub updater wrapper
-│   └── vendor/
-│       └── plugin-update-checker/       # YahnisElsts library (v5.6+)
+│   └── class-tsm-admin.php              # Admin UI enhancements
 ├── assets/
 │   ├── css/
 │   │   └── admin.css                    # Minimal admin styling
@@ -63,7 +82,7 @@ wp-content/plugins/tracking-script-manager/
 /**
  * Plugin Name:       Tracking Script Manager
  * Plugin URI:        https://github.com/YOUR-ORG/tracking-script-manager
- * Description:       Manage GA, GTM, and tracking scripts with granular placement and scope control
+ * Description:       Manage Google Analytics 4 (GA4) and Google Tag Manager (GTM) scripts with granular placement and scope control
  * Version:           1.0.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
@@ -118,9 +137,9 @@ function tsm_init() {
     // Initialize core components
     TSM_CPT::get_instance();
     TSM_Meta_Boxes::get_instance();
+    TSM_Conflict_Detector::get_instance();
     TSM_Frontend::get_instance();
     TSM_Admin::get_instance();
-    TSM_Updater::get_instance();
 }
 ```
 
@@ -196,11 +215,88 @@ class TSM_CPT {
     }
 
     public function add_custom_columns($columns) {
-        // Add: Placement, Scope, Pages, Status columns
+        $new_columns = array();
+        $new_columns['cb'] = $columns['cb'];
+        $new_columns['title'] = $columns['title'];
+        $new_columns['tracking_ids'] = __('Tracking IDs', 'tracking-script-manager');
+        $new_columns['placement'] = __('Placement', 'tracking-script-manager');
+        $new_columns['scope'] = __('Scope', 'tracking-script-manager');
+        $new_columns['target_pages'] = __('Target Pages', 'tracking-script-manager');
+        $new_columns['status'] = __('Status', 'tracking-script-manager');
+        $new_columns['date'] = $columns['date'];
+
+        return $new_columns;
     }
 
     public function render_custom_columns($column, $post_id) {
-        // Render column data
+        switch ($column) {
+            case 'tracking_ids':
+                $extracted_ids = get_post_meta($post_id, '_tsm_extracted_ids', true);
+                if (!empty($extracted_ids) && is_array($extracted_ids)) {
+                    $ids_output = array();
+                    foreach ($extracted_ids as $id_data) {
+                        $ids_output[] = sprintf(
+                            '<span class="tsm-tracking-id tsm-tracking-id-%s" title="%s">%s</span>',
+                            esc_attr($id_data['type']),
+                            esc_attr($id_data['name']),
+                            esc_html($id_data['id'])
+                        );
+                    }
+                    echo implode('<br>', $ids_output);
+                } else {
+                    echo '<span style="color: #999;">' . __('None detected', 'tracking-script-manager') . '</span>';
+                }
+                break;
+
+            case 'placement':
+                $placement = get_post_meta($post_id, '_tsm_placement', true);
+                if ($placement) {
+                    $placement_labels = array(
+                        'head' => __('Head', 'tracking-script-manager'),
+                        'body_top' => __('Body Top', 'tracking-script-manager'),
+                        'body_bottom' => __('Body Bottom', 'tracking-script-manager'),
+                        'footer' => __('Footer', 'tracking-script-manager'),
+                    );
+                    echo esc_html($placement_labels[$placement] ?? $placement);
+                } else {
+                    echo '—';
+                }
+                break;
+
+            case 'scope':
+                $scope = get_post_meta($post_id, '_tsm_scope', true);
+                if ($scope === 'global') {
+                    echo __('Global', 'tracking-script-manager');
+                } elseif ($scope === 'specific_pages') {
+                    echo __('Specific Pages', 'tracking-script-manager');
+                } else {
+                    echo '—';
+                }
+                break;
+
+            case 'target_pages':
+                $scope = get_post_meta($post_id, '_tsm_scope', true);
+                if ($scope === 'specific_pages') {
+                    $target_pages = get_post_meta($post_id, '_tsm_target_pages', true);
+                    if (is_array($target_pages) && !empty($target_pages)) {
+                        echo count($target_pages) . ' ' . __('pages', 'tracking-script-manager');
+                    } else {
+                        echo '0 ' . __('pages', 'tracking-script-manager');
+                    }
+                } else {
+                    echo '—';
+                }
+                break;
+
+            case 'status':
+                $is_active = get_post_meta($post_id, '_tsm_is_active', true);
+                if ($is_active === '1') {
+                    echo '<span style="color: #46b450;">● ' . __('Active', 'tracking-script-manager') . '</span>';
+                } else {
+                    echo '<span style="color: #999;">○ ' . __('Inactive', 'tracking-script-manager') . '</span>';
+                }
+                break;
+        }
     }
 }
 ```
@@ -208,6 +304,187 @@ class TSM_CPT {
 **WordPress Standards Reference:**
 - [register_post_type() Documentation](https://developer.wordpress.org/reference/functions/register_post_type/)
 - [Custom Post Type Capabilities](https://developer.wordpress.org/plugins/post-types/registering-custom-post-types/#capability-type)
+
+---
+
+### Phase 2.5: Conflict Detection System (`class-tsm-conflict-detector.php`) (Estimated: 2-3 hours)
+
+**Purpose:** Extract tracking IDs from script content and detect duplicate scripts across the site
+
+**Key Features:**
+- Extract GA4 measurement IDs (G-XXXXXXXXXX)
+- Extract Google Tag Manager IDs (GTM-XXXXXXX)
+- Detect duplicate tracking IDs across multiple tracking script posts
+- Scan rendered page HTML across all DOM sections for existing scripts before output
+- Log conflicts for admin review
+
+**Implementation Outline:**
+```php
+class TSM_Conflict_Detector {
+    private static $instance = null;
+    private $detected_conflicts = array();
+
+    public static function get_instance() {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    private function __construct() {
+        // Hook to check for conflicts on admin pages
+        add_action('admin_init', array($this, 'check_global_conflicts'));
+    }
+
+    /**
+     * Extract tracking IDs from script content
+     *
+     * @param string $content The script content
+     * @return array Array of extracted tracking IDs with types
+     */
+    public function extract_tracking_ids($content) {
+        $tracking_ids = array();
+
+        // GA4 Measurement IDs (G-XXXXXXXXXX)
+        if (preg_match_all('/[\'"]G-[A-Z0-9]{10}[\'"]/', $content, $matches)) {
+            foreach ($matches[0] as $match) {
+                $id = trim($match, '\'"');
+                $tracking_ids[] = array(
+                    'id' => $id,
+                    'type' => 'ga4',
+                    'name' => 'Google Analytics 4'
+                );
+            }
+        }
+
+        // Google Tag Manager IDs (GTM-XXXXXXX)
+        if (preg_match_all('/[\'"]GTM-[A-Z0-9]{7}[\'"]/', $content, $matches)) {
+            foreach ($matches[0] as $match) {
+                $id = trim($match, '\'"');
+                $tracking_ids[] = array(
+                    'id' => $id,
+                    'type' => 'gtm',
+                    'name' => 'Google Tag Manager'
+                );
+            }
+        }
+
+        return $tracking_ids;
+    }
+
+    /**
+     * Check for duplicate tracking IDs across all tracking scripts
+     *
+     * @return array Array of conflicts with post IDs and tracking IDs
+     */
+    public function check_global_conflicts() {
+        $args = array(
+            'post_type'      => 'tracking_script',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+        );
+
+        $scripts = get_posts($args);
+        $tracking_id_map = array(); // Map of tracking_id => array of post IDs
+        $conflicts = array();
+
+        foreach ($scripts as $script) {
+            $extracted_ids = get_post_meta($script->ID, '_tsm_extracted_ids', true);
+
+            if (!empty($extracted_ids) && is_array($extracted_ids)) {
+                foreach ($extracted_ids as $id_data) {
+                    $tracking_id = $id_data['id'];
+
+                    if (!isset($tracking_id_map[$tracking_id])) {
+                        $tracking_id_map[$tracking_id] = array();
+                    }
+
+                    $tracking_id_map[$tracking_id][] = array(
+                        'post_id' => $script->ID,
+                        'title' => $script->post_title,
+                        'type' => $id_data['type'],
+                        'name' => $id_data['name']
+                    );
+                }
+            }
+        }
+
+        // Find duplicates (tracking IDs used in multiple posts)
+        foreach ($tracking_id_map as $tracking_id => $posts) {
+            if (count($posts) > 1) {
+                $conflicts[] = array(
+                    'tracking_id' => $tracking_id,
+                    'type' => $posts[0]['type'],
+                    'name' => $posts[0]['name'],
+                    'posts' => $posts
+                );
+            }
+        }
+
+        // Cache conflicts for admin notices
+        $this->detected_conflicts = $conflicts;
+
+        return $conflicts;
+    }
+
+    /**
+     * Scan page HTML for existing tracking scripts
+     *
+     * @param string $html The page HTML content
+     * @param array $tracking_ids Array of tracking IDs to check for
+     * @return array Array of found tracking IDs
+     */
+    public function scan_page_html($html, $tracking_ids) {
+        $found_ids = array();
+
+        foreach ($tracking_ids as $id_data) {
+            $tracking_id = $id_data['id'];
+
+            // Check if this tracking ID exists in the HTML
+            if (stripos($html, $tracking_id) !== false) {
+                $found_ids[] = $id_data;
+            }
+        }
+
+        return $found_ids;
+    }
+
+    /**
+     * Get detected conflicts
+     *
+     * @return array Array of conflicts
+     */
+    public function get_conflicts() {
+        return $this->detected_conflicts;
+    }
+
+    /**
+     * Log conflict to WordPress debug log
+     *
+     * @param string $message The conflict message
+     */
+    public function log_conflict($message) {
+        if (defined('WP_DEBUG') && WP_DEBUG === true) {
+            error_log('TSM Conflict: ' . $message);
+        }
+    }
+}
+```
+
+**Key Functions:**
+- `extract_tracking_ids()`: Regex patterns to identify Google tracking IDs
+- `check_global_conflicts()`: Detect duplicate IDs across all tracking scripts
+- `scan_page_html()`: Check if tracking IDs already exist in rendered HTML (scans all DOM sections)
+- `log_conflict()`: Log conflicts for debugging
+
+**Regex Patterns Used:**
+- GA4: `/['"]G-[A-Z0-9]{10}['"]/ `
+- GTM: `/['"]GTM-[A-Z0-9]{7}['"]/ `
+
+**WordPress Standards:**
+- Follows singleton pattern for consistency
+- Uses WP debug logging (respects WP_DEBUG constant)
+- DRY principle: Reusable extraction and detection methods
 
 ---
 
@@ -224,6 +501,8 @@ class TSM_CPT {
 | `_tsm_scope`              | Select           | global, specific_pages                           |
 | `_tsm_target_pages`       | Checkboxes       | Multi-select page IDs (shown when scope=specific)|
 | `_tsm_is_active`          | Checkbox         | Enable/disable script                            |
+| `_tsm_extracted_ids`      | Array (hidden)   | Auto-extracted tracking IDs (GA4 and GTM only)   |
+| `_tsm_unique_hash`        | String (hidden)  | Hash of script content for duplicate detection   |
 
 **Implementation Outline:**
 ```php
@@ -294,6 +573,15 @@ class TSM_Meta_Boxes {
             // Use wp_kses_post() to allow safe HTML/scripts
             $content = wp_kses_post(wp_unslash($_POST['tsm_script_content']));
             update_post_meta($post_id, '_tsm_script_content', $content);
+
+            // Extract tracking IDs from script content using Conflict Detector
+            $detector = TSM_Conflict_Detector::get_instance();
+            $extracted_ids = $detector->extract_tracking_ids($content);
+            update_post_meta($post_id, '_tsm_extracted_ids', $extracted_ids);
+
+            // Generate unique hash for duplicate detection
+            $unique_hash = md5($content);
+            update_post_meta($post_id, '_tsm_unique_hash', $unique_hash);
         }
 
         if (isset($_POST['tsm_placement'])) {
@@ -493,14 +781,75 @@ class TSM_Frontend {
 
         echo "\n<!-- Tracking Script Manager: {$placement} -->\n";
 
+        // Start output buffering to capture current page HTML
+        ob_start();
+
         foreach ($scripts as $script) {
             $content = get_post_meta($script->ID, '_tsm_script_content', true);
-            if ($content) {
-                echo $content . "\n";
+            $extracted_ids = get_post_meta($script->ID, '_tsm_extracted_ids', true);
+
+            if (!$content) {
+                continue;
             }
+
+            // Check for duplicate scripts in existing page HTML
+            if (!empty($extracted_ids) && is_array($extracted_ids)) {
+                // Get current page HTML buffer
+                $current_html = ob_get_contents();
+
+                // Also check the full page output so far
+                $full_page_html = $this->get_current_page_html();
+                $combined_html = $current_html . $full_page_html;
+
+                // Use Conflict Detector to scan for existing tracking IDs
+                $detector = TSM_Conflict_Detector::get_instance();
+                $found_ids = $detector->scan_page_html($combined_html, $extracted_ids);
+
+                if (!empty($found_ids)) {
+                    // Duplicate detected - log and skip output
+                    $id_list = array();
+                    foreach ($found_ids as $id_data) {
+                        $id_list[] = $id_data['id'] . ' (' . $id_data['name'] . ')';
+                    }
+
+                    $conflict_msg = sprintf(
+                        'Duplicate tracking script detected for "%s". IDs already on page: %s. Skipping output to prevent double-tracking.',
+                        esc_html($script->post_title),
+                        implode(', ', $id_list)
+                    );
+
+                    echo "<!-- TSM: {$conflict_msg} -->\n";
+                    $detector->log_conflict($conflict_msg);
+
+                    continue; // Skip this script
+                }
+            }
+
+            // No duplicates found, output the script
+            echo $content . "\n";
         }
 
+        ob_end_flush(); // End buffering and output
+
         echo "<!-- /Tracking Script Manager: {$placement} -->\n\n";
+    }
+
+    /**
+     * Get current page HTML output
+     *
+     * @return string The current page HTML
+     */
+    private function get_current_page_html() {
+        // Get the output buffer level to capture all content
+        $level = ob_get_level();
+        $html = '';
+
+        // Capture all active output buffers
+        for ($i = 0; $i < $level; $i++) {
+            $html .= ob_get_contents();
+        }
+
+        return $html;
     }
 }
 ```
@@ -547,7 +896,45 @@ class TSM_Admin {
             return;
         }
 
-        // Example: Warning about script testing
+        // Check for duplicate tracking IDs
+        $detector = TSM_Conflict_Detector::get_instance();
+        $conflicts = $detector->get_conflicts();
+
+        if (!empty($conflicts)) {
+            echo '<div class="notice notice-error">';
+            echo '<p><strong>' . __('Duplicate Tracking IDs Detected!', 'tracking-script-manager') . '</strong></p>';
+            echo '<p>' . __('The following tracking IDs are used in multiple tracking scripts. This may cause tracking issues:', 'tracking-script-manager') . '</p>';
+            echo '<ul>';
+
+            foreach ($conflicts as $conflict) {
+                $tracking_id = esc_html($conflict['tracking_id']);
+                $type_name = esc_html($conflict['name']);
+
+                echo '<li>';
+                echo sprintf(
+                    __('<strong>%s</strong> (%s) is used in:', 'tracking-script-manager'),
+                    $tracking_id,
+                    $type_name
+                );
+                echo '<ul>';
+
+                foreach ($conflict['posts'] as $post_data) {
+                    $edit_link = get_edit_post_link($post_data['post_id']);
+                    echo '<li>';
+                    echo '<a href="' . esc_url($edit_link) . '">' . esc_html($post_data['title']) . '</a>';
+                    echo '</li>';
+                }
+
+                echo '</ul>';
+                echo '</li>';
+            }
+
+            echo '</ul>';
+            echo '<p>' . __('<strong>Recommendation:</strong> Each tracking script should use a unique tracking ID. Having the same ID in multiple scripts may result in duplicate data or tracking errors.', 'tracking-script-manager') . '</p>';
+            echo '</div>';
+        }
+
+        // Warning about script testing
         echo '<div class="notice notice-info is-dismissible">';
         echo '<p>' . __('Remember to test tracking scripts in a staging environment before deploying to production.', 'tracking-script-manager') . '</p>';
         echo '</div>';
@@ -606,243 +993,6 @@ class TSM_Activator {
 - Never delete user data on deactivation
 - Use `uninstall.php` for cleanup on plugin deletion
 - Reference: [Plugin Activation/Deactivation Hooks](https://developer.wordpress.org/plugins/plugin-basics/activation-deactivation-hooks/)
-
----
-
-### Phase 7: GitHub Auto-Updater (`class-tsm-updater.php`) (Estimated: 1-2 hours)
-
-**Purpose:** Enable automatic updates from private GitHub repository
-
-**Implementation Based on rosens-product Plugin:**
-
-#### 7.1 Include YahnisElsts Plugin Update Checker Library
-
-1. Download the library:
-   - URL: https://github.com/YahnisElsts/plugin-update-checker/releases/latest
-   - Current stable version: 5.6
-   - License: MIT
-
-2. Place in plugin directory:
-   ```
-   includes/vendor/plugin-update-checker/
-   ```
-
-3. Add to `.gitignore` if using Composer, or commit directly if bundling
-
-#### 7.2 Updater Wrapper Class
-
-```php
-<?php
-/**
- * GitHub updater class using YahnisElsts Plugin Update Checker
- */
-
-// Prevent direct access
-if (!defined('ABSPATH')) {
-    exit;
-}
-
-class TSM_Updater {
-    private static $instance = null;
-    private $update_checker;
-
-    public static function get_instance() {
-        if (null === self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-    private function __construct() {
-        $this->load_update_checker();
-        $this->setup_update_checker();
-    }
-
-    /**
-     * Load the Plugin Update Checker library
-     */
-    private function load_update_checker() {
-        $update_checker_path = TSM_PLUGIN_DIR . 'includes/vendor/plugin-update-checker/plugin-update-checker.php';
-
-        if (file_exists($update_checker_path)) {
-            require_once $update_checker_path;
-        } else {
-            error_log('TSM: Plugin Update Checker library not found at: ' . $update_checker_path);
-        }
-    }
-
-    /**
-     * Initialize the update checker
-     */
-    private function setup_update_checker() {
-        // Check if the library class exists
-        if (!class_exists('YahnisElsts\PluginUpdateChecker\v5\PucFactory')) {
-            error_log('TSM: Plugin Update Checker class not available');
-            return;
-        }
-
-        try {
-            // Initialize update checker with GitHub repository
-            $this->update_checker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
-                'https://github.com/YOUR-ORG/tracking-script-manager',
-                TSM_PLUGIN_FILE,
-                'tracking-script-manager'
-            );
-
-            // Set the branch that contains stable releases (default: master)
-            // Use 'main' if that's your default branch
-            $this->update_checker->setBranch('main');
-
-            // Enable release assets for GitHub releases
-            // This is REQUIRED for private repositories
-            $this->update_checker->getVcsApi()->enableReleaseAssets();
-
-            // Set authentication for private repository access
-            // Define TSM_GITHUB_TOKEN in wp-config.php:
-            // define('TSM_GITHUB_TOKEN', 'ghp_your_personal_access_token_here');
-            if (defined('TSM_GITHUB_TOKEN')) {
-                $this->update_checker->setAuthentication(TSM_GITHUB_TOKEN);
-            } else {
-                error_log('TSM: TSM_GITHUB_TOKEN not defined - private repo access will fail');
-            }
-
-        } catch (Exception $e) {
-            error_log('TSM: Failed to initialize Plugin Update Checker: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Get the update checker instance
-     *
-     * @return object|null
-     */
-    public function get_update_checker() {
-        return $this->update_checker;
-    }
-
-    /**
-     * Manually trigger an update check
-     */
-    public function check_for_updates() {
-        if ($this->update_checker) {
-            try {
-                $this->update_checker->checkForUpdates();
-            } catch (Exception $e) {
-                error_log('TSM: Failed to check for updates: ' . $e->getMessage());
-            }
-        }
-    }
-
-    /**
-     * Get current update information
-     *
-     * @return object|null
-     */
-    public function get_update_info() {
-        if ($this->update_checker) {
-            return $this->update_checker->getUpdate();
-        }
-        return null;
-    }
-}
-```
-
-#### 7.3 GitHub Personal Access Token Setup
-
-**For Private Repositories:**
-
-1. **Create GitHub Personal Access Token:**
-   - Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
-   - Click "Generate new token (classic)"
-   - Required scopes:
-     - `repo` (Full control of private repositories)
-   - Copy the token (starts with `ghp_`)
-   - Reference: [GitHub PAT Documentation](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
-
-2. **Add Token to `wp-config.php`:**
-   ```php
-   /**
-    * GitHub Personal Access Token for Tracking Script Manager updates
-    * DO NOT commit this to version control
-    */
-   define('TSM_GITHUB_TOKEN', 'ghp_your_personal_access_token_here');
-   ```
-
-3. **Security Best Practice:**
-   - Never commit tokens to version control
-   - Add to `.gitignore`:
-     ```
-     wp-config.php
-     .env
-     ```
-   - Use environment variables in production
-   - Rotate tokens periodically
-
-**For Public Repositories:**
-- No token needed
-- Remove authentication lines from updater class
-
-#### 7.4 How to Release Updates
-
-Based on the Plugin Update Checker library, you have three options:
-
-**Option 1: GitHub Releases (RECOMMENDED for private repos)**
-
-1. Create a new release on GitHub:
-   - Go to repository → Releases → "Draft a new release"
-   - Tag version: `v1.1.0` (must match version in plugin file)
-   - Release title: "Version 1.1.0"
-   - Description: Changelog/release notes (shown to users)
-   - Attach ZIP file as release asset (optional but recommended for private repos)
-
-2. The plugin will automatically detect the new release
-
-3. Example release asset creation:
-   ```bash
-   # In your plugin directory
-   cd ..
-   zip -r tracking-script-manager-1.1.0.zip tracking-script-manager/ \
-       -x "*.git*" "*.DS_Store" "*node_modules*" "*.log"
-   # Upload this ZIP as a release asset
-   ```
-
-**Option 2: Git Tags**
-
-1. Update version in `tracking-script-manager.php`:
-   ```php
-   * Version: 1.1.0
-   ```
-   And in constant:
-   ```php
-   define('TSM_VERSION', '1.1.0');
-   ```
-
-2. Create and push tag:
-   ```bash
-   git tag v1.1.0
-   git push origin v1.1.0
-   ```
-
-**Option 3: Stable Branch**
-
-1. Use a dedicated branch (e.g., `stable`, `production`)
-2. Update version number in the branch
-3. The updater checks the version header in the plugin file
-
-**Update Check Frequency:**
-- Default: Every 12 hours
-- Manual check: Plugins page → "Check for updates" link
-- Can be customized with filters
-
-#### 7.5 Testing the Updater
-
-1. **Enable Debug Bar plugin** (optional but helpful)
-2. Navigate to Plugins page
-3. Look for "Check for updates" link next to plugin
-4. Check error logs for any issues:
-   ```php
-   error_log('TSM: Update check initiated');
-   ```
 
 ---
 
@@ -995,7 +1145,8 @@ Each class has one job:
 - `TSM_CPT`: Only handles post type registration
 - `TSM_Meta_Boxes`: Only handles meta fields
 - `TSM_Frontend`: Only handles output
-- `TSM_Updater`: Only handles updates
+- `TSM_Admin`: Only handles admin UI enhancements
+- `TSM_Conflict_Detector`: Only handles duplicate detection
 
 ### Don't Repeat Yourself (DRY)
 
@@ -1070,17 +1221,22 @@ private function get_active_scripts($placement) {
    - [ ] Inactive scripts don't output
    - [ ] Multiple scripts output in correct order
 
+3a. **Duplicate Detection & Prevention:**
+   - [ ] Tracking IDs automatically extracted on save (GA4 and GTM only)
+   - [ ] Extracted tracking IDs displayed in admin columns
+   - [ ] Admin warning displayed when duplicate tracking IDs detected across posts
+   - [ ] Scripts with duplicate IDs skip output on frontend
+   - [ ] HTML comments explain why duplicate scripts were skipped
+   - [ ] Conflict logs appear in WordPress debug log (when WP_DEBUG enabled)
+   - [ ] DOM scanning checks all sections (head, body top, body bottom, footer)
+   - [ ] Manual GA script in theme + plugin script = only one outputs
+   - [ ] Two tracking script posts with same GA ID = warning in admin
+
 4. **Security:**
    - [ ] Non-admin users can't access CPT
    - [ ] Direct file access blocked
    - [ ] Nonces prevent CSRF
    - [ ] Malicious scripts sanitized
-
-5. **Updates:**
-   - [ ] Update checker initializes without errors
-   - [ ] "Check for updates" link appears
-   - [ ] Updates detected from GitHub
-   - [ ] Update installs successfully
 
 ### Browser Testing
 
@@ -1128,12 +1284,6 @@ Test on:
    - [ ] Version numbers consistent across files
    - [ ] Plugin header complete and accurate
 
-4. **GitHub Setup:**
-   - [ ] Repository created (public or private)
-   - [ ] Initial release created (v1.0.0)
-   - [ ] Release includes ZIP asset (if private repo)
-   - [ ] Repository settings: default branch = main
-
 ### Installation Instructions (for end users)
 
 1. **Download plugin:**
@@ -1146,13 +1296,7 @@ Test on:
    - Click "Install Now"
    - Activate
 
-3. **Configure GitHub Token (if private repo):**
-   - Add to `wp-config.php`:
-     ```php
-     define('TSM_GITHUB_TOKEN', 'your-token-here');
-     ```
-
-4. **Create Tracking Scripts:**
+3. **Create Tracking Scripts:**
    - Navigate to "Tracking Scripts" menu
    - Add New
    - Configure placement, scope, paste script code
@@ -1175,29 +1319,38 @@ Test on:
 - [ ] Meta boxes class
 - [ ] Meta fields (script content, placement, scope, pages, active)
 - [ ] Save handlers with sanitization
+- [ ] Integrate tracking ID extraction on save
 - [ ] Admin CSS/JS for dynamic UI
 - [ ] Admin notices and help tabs
 
-**Deliverable:** Can create and save tracking scripts in admin
+**Deliverable:** Can create and save tracking scripts in admin with automatic ID extraction
 
-### Phase 3: Frontend Output (Est. 2-3 hours)
+### Phase 2.5: Conflict Detection System (Est. 2-3 hours)
+- [ ] Create TSM_Conflict_Detector class
+- [ ] Implement tracking ID extraction (GA4 and GTM only)
+- [ ] Implement global conflict detection across all tracking scripts
+- [ ] Implement HTML scanning for duplicate detection across all DOM sections
+- [ ] Add conflict logging functionality
+- [ ] Update admin columns to show extracted tracking IDs
+
+**Deliverable:** System automatically detects and warns about duplicate tracking IDs
+
+### Phase 3: Frontend Output (Est. 3-4 hours)
 - [ ] Frontend class
 - [ ] Query logic with caching
 - [ ] Hook into wp_head, wp_body_open, wp_footer
 - [ ] Conditional output based on scope
+- [ ] Integrate duplicate detection before script output
+- [ ] HTML scanning to prevent duplicate tracking scripts
+- [ ] Skip script output if duplicate detected with logging
 
-**Deliverable:** Scripts output correctly on front-end
+**Deliverable:** Scripts output correctly on front-end with automatic duplicate prevention
 
-### Phase 4: GitHub Updater (Est. 2-3 hours)
-- [ ] Download and integrate Plugin Update Checker library
-- [ ] Create updater wrapper class
-- [ ] Initialize updater in main plugin
-- [ ] Test update detection
-
-**Deliverable:** Auto-updates work from GitHub
-
-### Phase 5: Testing & Polish (Est. 3-4 hours)
+### Phase 4: Testing & Polish (Est. 4-5 hours)
 - [ ] Manual testing (all features)
+- [ ] Test conflict detection with duplicate tracking IDs
+- [ ] Test duplicate script prevention on frontend
+- [ ] Test admin warnings and notices
 - [ ] Security audit
 - [ ] Code standards validation
 - [ ] Documentation (README, inline comments)
@@ -1205,9 +1358,9 @@ Test on:
 
 **Deliverable:** Production-ready v1.0.0
 
-### Phase 6: Future Enhancements (Optional)
+### Phase 5: Future Enhancements (Optional)
 - [ ] Import/Export functionality
-- [ ] Script templates (GA4, GTM, Facebook Pixel)
+- [ ] Script templates (GA4 and GTM)
 - [ ] Conditional logic builder (advanced targeting)
 - [ ] Performance optimization (object caching)
 - [ ] WP-CLI support
@@ -1250,15 +1403,15 @@ package-lock.json
 ```markdown
 # Tracking Script Manager
 
-WordPress plugin for managing GA, GTM, and tracking scripts with granular placement and scope control.
+WordPress plugin for managing Google Analytics 4 (GA4) and Google Tag Manager (GTM) scripts with granular placement and scope control.
 
 ## Features
 
-- Manage tracking scripts via custom post type
+- Manage Google tracking scripts via custom post type
+- Automatic duplicate detection for GA4/GTM tracking IDs
 - Multiple placement options: Head, Body Top, Body Bottom, Footer
 - Scope control: Global or page-specific
 - No dependencies on other plugins
-- Automatic updates from GitHub
 
 ## Installation
 
@@ -1276,14 +1429,6 @@ WordPress plugin for managing GA, GTM, and tracking scripts with granular placem
 5. Choose scope (global or specific pages)
 6. Enable "Active" checkbox
 7. Publish
-
-## GitHub Auto-Updates
-
-For private repositories, add to `wp-config.php`:
-
-```php
-define('TSM_GITHUB_TOKEN', 'your-github-personal-access-token');
-```
 
 ## Requirements
 
@@ -1313,7 +1458,6 @@ Before releasing v1.0.0, verify:
 - [ ] No SQL injection vulnerabilities (use WP functions)
 - [ ] No XSS vulnerabilities (proper escaping)
 - [ ] No CSRF vulnerabilities (nonce checks)
-- [ ] GitHub token not hardcoded in plugin files
 - [ ] Error messages don't reveal sensitive information
 - [ ] File permissions correct (644 for files, 755 for directories)
 
@@ -1332,15 +1476,6 @@ Before releasing v1.0.0, verify:
 - [Security Best Practices](https://developer.wordpress.org/apis/security/)
 - [Plugin API Reference](https://developer.wordpress.org/reference/)
 
-### GitHub Resources
-- [Personal Access Tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
-- [Creating Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)
-
-### Plugin Update Checker
-- [GitHub Repository](https://github.com/YahnisElsts/plugin-update-checker)
-- [Documentation](https://github.com/YahnisElsts/plugin-update-checker#getting-started)
-- [License: MIT](https://github.com/YahnisElsts/plugin-update-checker/blob/master/license.txt)
-
 ### Security Resources
 - [OWASP WordPress Security Guide](https://owasp.org/www-project-wordpress-security-implementation-guideline/)
 - [WordPress Security White Paper](https://wordpress.org/about/security/)
@@ -1354,10 +1489,10 @@ Before releasing v1.0.0, verify:
 |-------|-------|
 | Foundation | 4-6 |
 | Admin Interface | 4-5 |
-| Frontend Output | 2-3 |
-| GitHub Updater | 2-3 |
-| Testing & Polish | 3-4 |
-| **Total** | **15-21 hours** |
+| Conflict Detection | 2-3 |
+| Frontend Output | 3-4 |
+| Testing & Polish | 4-5 |
+| **Total** | **17-23 hours** |
 
 *Note: Times assume experienced WordPress developer familiar with coding standards*
 
@@ -1371,9 +1506,8 @@ Before releasing v1.0.0, verify:
 2. Detailed implementation plan for each class
 3. Security best practices with code examples
 4. WordPress coding standards reference
-5. GitHub updater integration (based on rosens-product example)
-6. Testing strategy and deployment checklist
-7. All necessary references and documentation links
+5. Testing strategy and deployment checklist
+6. All necessary references and documentation links
 
 ### Getting Started
 
@@ -1388,8 +1522,7 @@ Before releasing v1.0.0, verify:
 
 All code examples are production-ready patterns. If implementation details are unclear:
 1. Check WordPress Codex links provided
-2. Review rosens-product plugin updater implementation
-3. Consult WordPress Plugin Developer Handbook
+2. Consult WordPress Plugin Developer Handbook
 
 ### Success Criteria
 
@@ -1398,11 +1531,89 @@ Plugin is complete when:
 - [ ] Security audit passes
 - [ ] Manual testing checklist complete
 - [ ] First GitHub release published
-- [ ] Updates work from GitHub
 - [ ] README documentation accurate
 
 ---
 
-**Document Version:** 1.0
+## Document Revision History
+
+### Version 2.1 - 2025-10-14
+**Scope Refinement: Google Analytics Only**
+
+Refined plugin scope to focus exclusively on Google tracking platforms:
+
+**Removed Features:**
+- Universal Analytics (UA) support - removed UA-XXXXXXX-X tracking ID extraction
+- Facebook Pixel support - removed all Facebook Pixel references
+- Generic "other tracking scripts" language removed from all documentation
+
+**Clarified Scope:**
+- Plugin now exclusively supports Google Analytics 4 (GA4) and Google Tag Manager (GTM)
+- Duplicate detection limited to GA4 (G-XXXXXXXXXX) and GTM (GTM-XXXXXXX) IDs only
+- All DOM sections scanned (head, body top, body bottom, footer) for duplicate Google tracking IDs
+- Simple, focused approach aligned with KISS principle
+
+**Updated Sections:**
+- Project Overview: Explicitly states "Google Analytics 4 (GA4) and Google Tag Manager (GTM)"
+- Enhanced Features: Mentions only GA4/GTM support
+- TSM_Conflict_Detector: Only includes GA4 and GTM regex patterns
+- Testing checklist: Updated to reflect GA4/GTM-only scope
+- Development roadmap: Clarified conflict detection is for Google platforms only
+
+**Rationale:**
+- Keeps plugin simple and maintainable
+- Solves the specific client problem (duplicate Google Analytics tracking)
+- Avoids scope creep and unnecessary complexity
+
+### Version 2.0 - 2025-10-14
+**Major Enhancement: Duplicate Detection System**
+
+Added comprehensive conflict detection and prevention system based on client feedback:
+
+1. **New Class: TSM_Conflict_Detector**
+   - Automatically extracts tracking IDs
+   - Detects duplicate tracking IDs across all tracking script posts
+   - Scans page HTML for existing scripts before output
+   - Prevents duplicate script injection on frontend
+   - Logs conflicts for debugging
+
+2. **Enhanced Meta Fields**
+   - `_tsm_extracted_ids`: Array of auto-extracted tracking IDs
+   - `_tsm_unique_hash`: MD5 hash for duplicate detection
+   - Automatic extraction on save
+
+3. **Enhanced Admin Interface**
+   - New "Tracking IDs" column in CPT list view
+   - Error notices when duplicate IDs detected across posts
+   - Detailed conflict reporting with edit links
+   - Visual indicators for tracking ID types
+
+4. **Enhanced Frontend Output**
+   - HTML scanning before script injection
+   - Automatic skip if duplicate tracking ID detected
+   - HTML comments explaining why scripts were skipped
+   - Protection against double-tracking from theme/plugins
+
+5. **Updated Development Timeline**
+   - Added Phase 2.5: Conflict Detection (2-3 hours)
+   - Updated Phase 3 to include duplicate prevention (3-4 hours)
+   - Updated Phase 5 testing requirements (4-5 hours)
+   - New total estimate: 19-26 hours (was 15-21 hours)
+
+**Client Requirements Addressed:**
+- ✅ Unique GA key per post - automated extraction and validation
+- ✅ Verify only one script loads - HTML scanning and duplicate prevention
+
+### Version 1.0 - 2025-10-14
+**Initial Planning Document**
+- Complete plugin architecture
+- All core classes defined
+- Security best practices
+- WordPress coding standards compliance
+
+---
+
+**Current Document Version:** 2.1
 **Last Updated:** 2025-10-14
-**Based On:** rosens-product plugin updater implementation
+**Based On:** Client feedback on duplicate detection requirements
+   
