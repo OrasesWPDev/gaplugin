@@ -80,18 +80,29 @@ wp-content/plugins/ga-plugin/
 ```php
 <?php
 /**
+ * GA Plugin
+ *
+ * @package           GA_Plugin
+ * @author            Orases
+ * @copyright         2025 Orases
+ * @license           GPL-2.0-or-later
+ *
+ * @wordpress-plugin
  * Plugin Name:       GA Plugin
- * Plugin URI:        https://github.com/YOUR-ORG/ga-plugin
+ * Plugin URI:        https://github.com/OrasesWPDev/gaplugin
  * Description:       Manage Google Analytics 4 (GA4) and Google Tag Manager (GTM) scripts with granular placement and scope control
  * Version:           1.0.0
  * Requires at least: 6.0
+ * Tested up to:      6.8
  * Requires PHP:      7.4
- * Author:            Your Name/Company
- * Author URI:        https://yourcompany.com
- * License:           GPL v2 or later
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Author:            Orases
+ * Author URI:        https://orases.com
  * Text Domain:       ga-plugin
  * Domain Path:       /languages
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Update URI:        https://github.com/OrasesWPDev/gaplugin
+ * Network:           false
  */
 
 // Prevent direct access
