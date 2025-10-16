@@ -65,13 +65,24 @@
       "authority": "Testing, security audit, quality verification",
       "file": ".claude/agents/local-testing-specialist.md",
       "status": "active"
+    },
+    {
+      "id": "agent-health-monitor",
+      "name": "Agent Health Monitor",
+      "role": "Autonomous Agent Monitoring & Failure Recovery",
+      "model": "claude-sonnet-4-5",
+      "color": "🔴",
+      "tools": ["Read", "Bash", "Task", "TodoWrite"],
+      "authority": "Detection, diagnosis, and auto-recovery of stuck/failed agents",
+      "file": ".claude/agents/agent-health-monitor.md",
+      "status": "active"
     }
   ],
   "metadata": {
-    "total_agents": 6,
-    "active_agents": 6,
+    "total_agents": 7,
+    "active_agents": 7,
     "last_updated": "2025-10-16",
-    "version": "1.1",
-    "changes": "Added epic-orchestrator-executor, removed archived agents from registry"
+    "version": "1.2",
+    "changes": "Restored agent-health-monitor from legacy to monitor EPIC-00 execution"
   }
 }
