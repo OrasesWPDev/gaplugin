@@ -36,6 +36,7 @@ class AgentDashboard:
         self.collector = AgentDataCollector(repo_root)
         self.start_time = datetime.now()
         self.refresh_rate = 5  # Default refresh rate in seconds
+        self.no_clear = False  # Allow screen clearing by default
 
     def create_layout(self) -> Layout:
         """Create the main dashboard layout."""
@@ -200,8 +201,12 @@ class AgentDashboard:
 
         try:
             while True:
-                # Clear screen and print fresh dashboard
-                self.console.clear()
+                # Clear screen (or add visual separator if clearing not supported)
+                if not self.no_clear:
+                    self.console.clear()
+                else:
+                    self.console.print("\n" + "=" * 80 + "\n")
+
                 layout = self.create_layout()  # Recreate layout for fresh display
                 dashboard = self.generate_dashboard(layout)
                 self.console.print(dashboard)
@@ -234,9 +239,10 @@ class AgentDashboard:
 
         return layout
 
-    def run(self, refresh_rate: int = 5, once: bool = False):
+    def run(self, refresh_rate: int = 5, once: bool = False, no_clear: bool = False):
         """Run the dashboard."""
         self.refresh_rate = refresh_rate  # Store for use in get_footer()
+        self.no_clear = no_clear  # Store for use in display_dashboard()
 
         if once:
             # Single update mode
@@ -278,6 +284,11 @@ def main():
         default=".",
         help="Repository root directory (default: current directory)",
     )
+    parser.add_argument(
+        "--no-clear",
+        action="store_true",
+        help="Don't clear screen between updates (for terminals without clear support)",
+    )
 
     args = parser.parse_args()
 
@@ -286,7 +297,7 @@ def main():
         os.chdir(args.repo_root)
 
     dashboard = AgentDashboard(repo_root=".")
-    dashboard.run(refresh_rate=args.refresh_rate, once=args.once)
+    dashboard.run(refresh_rate=args.refresh_rate, once=args.once, no_clear=args.no_clear)
 
 
 if __name__ == "__main__":
