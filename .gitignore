@@ -1,13 +1,31 @@
 # IDE
 .idea/
 .vscode/
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Project-specific
-# (add project-specific ignores here)
+# WordPress Core Files
+wp-config.php
+wp-config-sample.php
+.htaccess
+wp-content/uploads/
+wp-content/blogs.dir/
+wp-content/upgrade/
+wp-content/backup-db/
+wp-content/advanced-cache.php
+wp-content/wp-cache-config.php
+sitemap.xml
+*.log
+
+# WordPress Plugin Development
+*.sql
+*.sql.gz
+error_log
+debug.log
 
 # Dependencies
 node_modules/
@@ -22,8 +40,17 @@ vendor/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+logs/
 
 # Build outputs
 dist/
 build/
 *.zip
+
+# Testing
+phpunit.xml
+.phpunit.result.cache
+
+# Composer
+composer.lock
+composer.phar
