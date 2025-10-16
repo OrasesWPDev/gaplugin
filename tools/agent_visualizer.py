@@ -35,6 +35,7 @@ class AgentDashboard:
         self.console = Console()
         self.collector = AgentDataCollector(repo_root)
         self.start_time = datetime.now()
+        self.refresh_rate = 5  # Default refresh rate in seconds
 
     def create_layout(self) -> Layout:
         """Create the main dashboard layout."""
@@ -188,18 +189,19 @@ class AgentDashboard:
         uptime_str = f"{int(uptime.total_seconds() / 60)} min"
 
         footer_text = (
-            f"⏱ Uptime: {uptime_str} | 🔄 Live Updates Every 5s | Press Ctrl+C to Exit"
+            f"⏱ Uptime: {uptime_str} | 🔄 Live Updates Every {self.refresh_rate}s | Press Ctrl+C to Exit"
         )
         return Panel(footer_text, style="dim white")
 
     def display_dashboard(self, refresh_rate: int = 5):
         """Display the live dashboard."""
+        self.refresh_rate = refresh_rate  # Store for use in get_footer()
         layout = self.create_layout()
 
         try:
             with Live(
                 self.generate_dashboard(layout),
-                refresh_per_second=1,
+                refresh_per_second=4,  # Increase for smoother visual updates
                 console=self.console,
             ) as live:
                 while True:
@@ -233,6 +235,8 @@ class AgentDashboard:
 
     def run(self, refresh_rate: int = 5, once: bool = False):
         """Run the dashboard."""
+        self.refresh_rate = refresh_rate  # Store for use in get_footer()
+
         if once:
             # Single update mode
             layout = self.create_layout()
