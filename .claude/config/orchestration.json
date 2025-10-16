@@ -1,0 +1,101 @@
+{
+  "orchestration": {
+    "enabled": true,
+    "version": "1.0",
+    "methodology": "SWARM (Simultaneous Work And Resource Management)",
+    "workflow_model": "Modified Plan-Approve-Execute with Configurable Checkpoints"
+  },
+  "checkpoints": {
+    "default": "none",
+    "options": [
+      "none",
+      "manual",
+      "US",
+      1,
+      3,
+      5,
+      10
+    ],
+    "descriptions": {
+      "none": "Full automation, no pauses",
+      "manual": "Pause after every ticket for manual approval",
+      "US": "Pause after each user story completion",
+      "1": "Pause after every ticket",
+      "3": "Pause every 3 tickets",
+      "5": "Pause every 5 tickets",
+      "10": "Pause every 10 tickets"
+    }
+  },
+  "parallelization": {
+    "enabled": true,
+    "max_concurrent_workers": 3,
+    "can_increase_to": 5,
+    "strategy": "Dependency-aware parallel execution",
+    "auto_group_independent_tasks": true
+  },
+  "quality_gates": {
+    "blocking": [
+      "wordpress_coding_standards",
+      "security_audit",
+      "automated_tests",
+      "no_debug_code"
+    ],
+    "warning_only": [],
+    "enforce_all": true,
+    "can_skip": false,
+    "auto_fix": {
+      "enabled": true,
+      "debug_code": true,
+      "standards_violations": false
+    }
+  },
+  "progress_tracking": {
+    "update_frequency_seconds": 30,
+    "use_todowrite": true,
+    "real_time_notifications": true,
+    "checkpoint_notifications": true
+  },
+  "failure_handling": {
+    "auto_retry_enabled": true,
+    "max_retries": 3,
+    "retry_wait_seconds": 30,
+    "escalate_after_failures": true
+  },
+  "agents": {
+    "orchestrator": "subagent-orchestrator",
+    "requirements_analyzer": "requirements-analyzer",
+    "ticket_generator": "epic-ticket-generator",
+    "developer": "wordpress-developer",
+    "standards_validator": "wordpress-standards-validator",
+    "git_specialist": "git-workflow-specialist",
+    "tester": "local-testing-specialist",
+    "creator": "subagent-creator"
+  },
+  "timeouts": {
+    "ticket_implementation_hours": 3,
+    "validation_minutes": 15,
+    "git_operation_minutes": 10,
+    "agent_response_minutes": 5
+  },
+  "notifications": {
+    "on_ticket_complete": true,
+    "on_quality_gate_failure": true,
+    "on_checkpoint_reached": true,
+    "on_phase_complete": true,
+    "on_epic_complete": true,
+    "on_pr_created": true
+  },
+  "logging": {
+    "enabled": true,
+    "log_level": "info",
+    "log_file": "orchestration.log",
+    "include_agent_communications": true
+  },
+  "defaults": {
+    "epic_branch_prefix": "epic-",
+    "commit_prefix": "[type](epic-XX): [ticket-id]",
+    "auto_create_pr": true,
+    "auto_squash_merge": false,
+    "require_approval_before_merge": true
+  }
+}

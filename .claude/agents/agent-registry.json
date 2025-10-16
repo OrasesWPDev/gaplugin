@@ -1,0 +1,109 @@
+{
+  "agents": [
+    {
+      "id": "subagent-orchestrator",
+      "name": "Subagent Orchestrator",
+      "role": "Autonomous Epic Execution Coordinator using SWARM",
+      "model": "claude-sonnet-4-5",
+      "color": "🟣",
+      "tools": ["Read", "Write", "TodoWrite", "Task", "Bash", "Edit"],
+      "authority": "Workflow coordination and multi-agent orchestration",
+      "file": ".claude/agents/subagent-orchestrator.md",
+      "status": "active"
+    },
+    {
+      "id": "wordpress-developer",
+      "name": "Wordpress Developer",
+      "role": "PHP Implementation & Testing",
+      "model": "claude-sonnet-4-5",
+      "color": "🔵",
+      "tools": ["Read", "Write", "Edit", "Bash"],
+      "authority": "PHP code implementation and unit testing",
+      "file": ".claude/agents/wordpress-developer.md",
+      "status": "active"
+    },
+    {
+      "id": "wordpress-standards-validator",
+      "name": "Wordpress Standards Validator",
+      "role": "Code Quality & Standards Enforcement",
+      "model": "claude-haiku-4.5",
+      "color": "🟡",
+      "tools": ["Read", "Bash"],
+      "authority": "WordPress coding standards validation",
+      "file": ".claude/agents/wordpress-standards-validator.md",
+      "status": "active"
+    },
+    {
+      "id": "requirements-analyzer",
+      "name": "Requirements Analyzer",
+      "role": "Epic Planning & Dependency Analysis",
+      "model": "claude-sonnet-4-5",
+      "color": "🟢",
+      "tools": ["Read", "Write"],
+      "authority": "Epic analysis and execution planning",
+      "file": ".claude/agents/requirements-analyzer.md",
+      "status": "active"
+    },
+    {
+      "id": "git-workflow-specialist",
+      "name": "Git Workflow Specialist",
+      "role": "Exclusive Git Operations Manager",
+      "model": "claude-sonnet-4-5",
+      "color": "🔴",
+      "tools": ["Bash", "Read"],
+      "authority": "All Git and GitHub operations (EXCLUSIVE)",
+      "file": ".claude/agents/git-workflow-specialist.md",
+      "status": "active"
+    },
+    {
+      "id": "local-testing-specialist",
+      "name": "Local Testing Specialist",
+      "role": "Testing & Quality Assurance",
+      "model": "claude-sonnet-4-5",
+      "color": "🟠",
+      "tools": ["Bash", "Read"],
+      "authority": "Testing, security audit, quality verification",
+      "file": ".claude/agents/local-testing-specialist.md",
+      "status": "active"
+    },
+    {
+      "id": "epic-ticket-generator",
+      "name": "Epic Ticket Generator",
+      "role": "Epic Breakdown & Ticket Generation",
+      "model": "claude-sonnet-4-5",
+      "color": "🟣",
+      "tools": ["Read", "Write"],
+      "authority": "Breaking epics into individual tickets",
+      "file": ".claude/agents/epic-ticket-generator.md",
+      "status": "active"
+    },
+    {
+      "id": "subagent-creator",
+      "name": "Subagent Creator",
+      "role": "Agent Creation & Documentation",
+      "model": "claude-sonnet-4-5",
+      "color": "🟣",
+      "tools": ["Read", "Write", "Edit"],
+      "authority": "Creating new specialized agents",
+      "file": ".claude/agents/subagent-creator.md",
+      "status": "active"
+    },
+    {
+      "id": "agent-health-monitor",
+      "name": "Agent Health Monitor",
+      "role": "Autonomous Agent Monitoring & Failure Recovery",
+      "model": "claude-sonnet-4-5",
+      "color": "🔴",
+      "tools": ["Read", "Bash", "Task", "TodoWrite"],
+      "authority": "Detection, diagnosis, and auto-recovery of stuck/failed agents",
+      "file": ".claude/agents/agent-health-monitor.md",
+      "status": "active"
+    }
+  ],
+  "metadata": {
+    "total_agents": 9,
+    "active_agents": 9,
+    "last_updated": "2025-10-16",
+    "version": "1.0"
+  }
+}
