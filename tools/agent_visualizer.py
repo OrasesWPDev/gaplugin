@@ -199,14 +199,15 @@ class AgentDashboard:
         layout = self.create_layout()
 
         try:
-            with Live(
-                self.generate_dashboard(layout),
-                refresh_per_second=4,  # Increase for smoother visual updates
-                console=self.console,
-            ) as live:
-                while True:
-                    live.update(self.generate_dashboard(layout))
-                    time.sleep(refresh_rate)
+            while True:
+                # Clear screen and print fresh dashboard
+                self.console.clear()
+                layout = self.create_layout()  # Recreate layout for fresh display
+                dashboard = self.generate_dashboard(layout)
+                self.console.print(dashboard)
+
+                # Sleep before next refresh
+                time.sleep(refresh_rate)
         except KeyboardInterrupt:
             self.console.print(
                 "\n[yellow]Dashboard stopped by user[/yellow]",
