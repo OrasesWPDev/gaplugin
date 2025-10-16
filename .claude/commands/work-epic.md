@@ -1,55 +1,77 @@
 # /work-epic
 
-Orchestrate complete epic execution from analysis through PR creation using SWARM methodology.
+Execute complete epic development automatically - all tasks from start to finish with no manual intervention required.
 
 **Usage:**
 ```
-/work-epic <epic-number> [--checkpoint=<option>]
+/work-epic <epic-number>
 ```
 
 **Parameters:**
-- `<epic-number>` - Epic number (00-05)
-- `--checkpoint=none` - Full automation (default)
-- `--checkpoint=manual` - Pause after every ticket
-- `--checkpoint=US` - Pause after each user story
-- `--checkpoint=3` - Pause every 3 tickets
-- `--checkpoint=5` - Pause every 5 tickets
+- `<epic-number>` - Epic number (00, 01, 02, 03, 04, or 05)
 
 **What It Does:**
 
-1. **Preparation Phase** - Create epic branch, load ticket definitions from MASTER-DEVELOPMENT-PLAN.md
-2. **Development Phase** - Parallel development with SWARM methodology
-3. **Quality Assurance** - Run all quality gates
-4. **PR Creation** - Create PR with test reports
-5. **Monitoring** - Track progress with real-time updates
+Invokes the **epic-orchestrator-executor** agent to automatically execute every task in the epic:
+
+1. **Initialization** - Loads epic from MASTER-DEVELOPMENT-PLAN.md, verifies prerequisites
+2. **Task Execution Loop** - For each task in epic (sequentially or safe-parallel):
+   - Reads task specification file
+   - Delegates to wordpress-developer for implementation
+   - Validates with wordpress-standards-validator
+   - Commits with git-workflow-specialist
+   - Updates progress tracking
+3. **Quality Assurance** - Runs comprehensive testing with local-testing-specialist
+4. **Completion** - Updates status matrix, generates report, ready for next epic
+
+**Result:** Complete epic with all tasks done, committed, and validated. Zero manual intervention needed.
 
 **Examples:**
 
 ```bash
-# Full automation (fastest)
+# Execute EPIC-00 (Project Setup) - all 7 tasks
+/work-epic 00
+
+# Execute EPIC-01 (Foundation) - all 9 tasks
 /work-epic 01
 
-# Pause after every user story
-/work-epic 01 --checkpoint=US
+# Execute EPIC-02 (Admin Interface) - all 8 tasks
+/work-epic 02
+```
 
-# Manual control - pause after every ticket
-/work-epic 01 --checkpoint=manual
+**Execution Flow:**
 
-# Every 3 tickets
-/work-epic 01 --checkpoint=3
+```
+/work-epic 00
+    ↓
+Invokes epic-orchestrator-executor agent
+    ↓
+📋 Initialize EPIC-00 (7 tasks)
+    ↓
+🚀 Execute US-00.1 (Git Repository Setup)
+    ├─ Delegate to wordpress-developer
+    ├─ Validate with standards-validator
+    ├─ Commit with git-workflow-specialist
+    ✓ Complete
+    ↓
+🚀 Execute US-00.2, US-00.3, US-00.4, TT-00.1, TT-00.2, TT-00.3
+    [Same pattern for each task]
+    ↓
+✅ Quality Assurance (test all 7 tasks)
+    ↓
+📊 Update MASTER-DEVELOPMENT-PLAN.md (0/7 → 7/7)
+    ↓
+✅ EPIC-00 COMPLETE - Ready for EPIC-01
 ```
 
 **Output Shows:**
-- Epic analysis and dependency graph
-- Parallelization opportunities and time savings
-- Assigned agents and their roles
-- Execution phases with tickets
-- Quality gates for each phase
-- Real-time progress updates
-- Checkpoint decisions and options
-- Final PR summary with test results
+- Real-time progress for each task
+- Files created
+- Git commits
+- Validation results
+- Any blockers or issues
+- Final completion report
 
 **See also:**
-- [Orchestration Workflow](../docs/orchestration/orchestration-workflow.md)
-- [Checkpoint Guide](../docs/orchestration/checkpoint-guide.md)
-- [Quality Gates](../docs/orchestration/quality-gates.md)
+- [Epic Orchestrator Executor](../agents/epic-orchestrator-executor.md) - Agent that executes this command
+- [Master Development Plan](../docs/development/MASTER-DEVELOPMENT-PLAN.md) - Task specifications

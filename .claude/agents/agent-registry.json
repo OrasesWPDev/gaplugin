@@ -12,6 +12,17 @@
       "status": "active"
     },
     {
+      "id": "epic-orchestrator-executor",
+      "name": "Epic Orchestrator Executor",
+      "role": "Autonomous Epic Execution Engine",
+      "model": "claude-sonnet-4-5",
+      "color": "🟣",
+      "tools": ["Read", "Write", "Edit", "Bash", "Task", "TodoWrite"],
+      "authority": "Exclusive control over epic-to-completion automated execution",
+      "file": ".claude/agents/epic-orchestrator-executor.md",
+      "status": "active"
+    },
+    {
       "id": "wordpress-developer",
       "name": "Wordpress Developer",
       "role": "PHP Implementation & Testing",
@@ -31,17 +42,6 @@
       "tools": ["Read", "Bash"],
       "authority": "WordPress coding standards validation",
       "file": ".claude/agents/wordpress-standards-validator.md",
-      "status": "active"
-    },
-    {
-      "id": "requirements-analyzer",
-      "name": "Requirements Analyzer",
-      "role": "Epic Planning & Dependency Analysis",
-      "model": "claude-sonnet-4-5",
-      "color": "🟢",
-      "tools": ["Read", "Write"],
-      "authority": "Epic analysis and execution planning",
-      "file": ".claude/agents/requirements-analyzer.md",
       "status": "active"
     },
     {
@@ -65,45 +65,13 @@
       "authority": "Testing, security audit, quality verification",
       "file": ".claude/agents/local-testing-specialist.md",
       "status": "active"
-    },
-    {
-      "id": "epic-ticket-generator",
-      "name": "Epic Ticket Generator",
-      "role": "Epic Breakdown & Ticket Generation",
-      "model": "claude-sonnet-4-5",
-      "color": "🟣",
-      "tools": ["Read", "Write"],
-      "authority": "Breaking epics into individual tickets",
-      "file": ".claude/agents/epic-ticket-generator.md",
-      "status": "active"
-    },
-    {
-      "id": "subagent-creator",
-      "name": "Subagent Creator",
-      "role": "Agent Creation & Documentation",
-      "model": "claude-sonnet-4-5",
-      "color": "🟣",
-      "tools": ["Read", "Write", "Edit"],
-      "authority": "Creating new specialized agents",
-      "file": ".claude/agents/subagent-creator.md",
-      "status": "active"
-    },
-    {
-      "id": "agent-health-monitor",
-      "name": "Agent Health Monitor",
-      "role": "Autonomous Agent Monitoring & Failure Recovery",
-      "model": "claude-sonnet-4-5",
-      "color": "🔴",
-      "tools": ["Read", "Bash", "Task", "TodoWrite"],
-      "authority": "Detection, diagnosis, and auto-recovery of stuck/failed agents",
-      "file": ".claude/agents/agent-health-monitor.md",
-      "status": "active"
     }
   ],
   "metadata": {
-    "total_agents": 9,
-    "active_agents": 9,
+    "total_agents": 6,
+    "active_agents": 6,
     "last_updated": "2025-10-16",
-    "version": "1.0"
+    "version": "1.1",
+    "changes": "Added epic-orchestrator-executor, removed archived agents from registry"
   }
 }
