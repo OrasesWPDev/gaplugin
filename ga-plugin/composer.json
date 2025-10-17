@@ -1,0 +1,42 @@
+{
+    "name": "orases/ga-plugin",
+    "description": "Enterprise-grade Google Analytics and Google Tag Manager tracking script management for WordPress",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Orases",
+            "email": "dev@orases.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "yoast/phpunit-polyfills": "^1.0",
+        "brain/monkey": "^2.6",
+        "squizlabs/php_codesniffer": "*",
+        "wp-coding-standards/wpcs": "*",
+        "phpcsstandards/phpcsutils": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "GAPlugin\\": "includes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GAPlugin\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
