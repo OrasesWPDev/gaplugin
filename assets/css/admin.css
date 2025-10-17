@@ -1,0 +1,312 @@
+/**
+ * GA Plugin - Admin Interface Styles
+ *
+ * Styles for the tracking script configuration form with proper layout,
+ * spacing, colors, and responsive design.
+ *
+ * @package GA_Plugin
+ * @since   1.0.0
+ */
+
+/* Meta Box Container */
+.gap-meta-box {
+    padding: 12px;
+    background: #fff;
+}
+
+.gap-meta-box-section {
+    margin-bottom: 20px;
+    padding: 12px;
+    border-left: 4px solid #0073aa;
+    background: #f9f9f9;
+}
+
+.gap-meta-box-section:last-child {
+    margin-bottom: 0;
+}
+
+.gap-meta-box-section h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #0073aa;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Form Fields */
+.gap-form-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.gap-form-group label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+    font-size: 14px;
+}
+
+.gap-form-group .description {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.gap-form-group input[type="text"],
+.gap-form-group input[type="number"],
+.gap-form-group select,
+.gap-form-group textarea {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.gap-form-group input[type="text"]:focus,
+.gap-form-group input[type="number"]:focus,
+.gap-form-group select:focus,
+.gap-form-group textarea:focus {
+    border-color: #0073aa;
+    outline: none;
+    box-shadow: 0 0 3px rgba(0, 115, 170, 0.3);
+}
+
+.gap-form-group textarea {
+    font-family: 'Courier New', monospace;
+    min-height: 150px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+/* Checkbox Styling */
+.gap-form-group input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+    width: auto;
+}
+
+.gap-form-group label input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Status Indicators */
+.gap-status-active {
+    color: #46b450;
+    font-weight: bold;
+}
+
+.gap-status-active::before {
+    content: "●";
+    margin-right: 6px;
+}
+
+.gap-status-inactive {
+    color: #999;
+    font-weight: bold;
+}
+
+.gap-status-inactive::before {
+    content: "●";
+    margin-right: 6px;
+}
+
+/* Tracking ID Badges */
+.gap-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+.gap-badge-ga4 {
+    background-color: #4285f4;
+    color: white;
+}
+
+.gap-badge-gtm {
+    background-color: #ff6f00;
+    color: white;
+}
+
+/* Tracking ID Display in Admin Columns */
+.gap-tracking-id {
+    display: inline-block;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.gap-id-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-right: 4px;
+    color: white;
+}
+
+.gap-id-ga4 .gap-id-badge {
+    background-color: #4285f4;
+}
+
+.gap-id-gtm .gap-id-badge {
+    background-color: #ff6f00;
+}
+
+/* Admin Conflict Notices */
+.gap-conflict-notice {
+    position: relative;
+    padding: 12px 20px;
+    margin: 15px 0;
+    border-left: 4px solid #dc3232;
+    background-color: #fff;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+}
+
+.gap-conflict-notice h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #dc3232;
+    font-size: 14px;
+}
+
+.gap-conflict-notice ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.gap-conflict-notice li {
+    margin: 8px 0;
+}
+
+.gap-conflict-notice .gap-conflict-id {
+    font-weight: bold;
+    color: #dc3232;
+}
+
+.gap-conflict-notice .gap-conflict-posts {
+    list-style: none;
+    padding-left: 20px;
+    margin-top: 4px;
+}
+
+.gap-conflict-notice .gap-conflict-posts li {
+    margin: 4px 0;
+}
+
+.gap-conflict-notice .gap-edit-link {
+    margin-left: 8px;
+    font-size: 12px;
+}
+
+/* Page Selector */
+.gap-pages-selector {
+    display: none;
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.gap-pages-selector.show {
+    display: block;
+}
+
+.gap-pages-selector label {
+    display: block;
+    margin: 8px 0;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.gap-pages-selector input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+/* Responsive Design - Tablet */
+@media screen and (max-width: 768px) {
+    .gap-meta-box {
+        padding: 8px;
+    }
+
+    .gap-meta-box-section {
+        margin-bottom: 15px;
+        padding: 8px;
+    }
+
+    .gap-form-group {
+        margin-bottom: 12px;
+    }
+
+    .gap-form-group label {
+        font-size: 13px;
+    }
+
+    .gap-form-group input[type="text"],
+    .gap-form-group input[type="number"],
+    .gap-form-group select,
+    .gap-form-group textarea {
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+
+    .gap-form-group textarea {
+        min-height: 100px;
+    }
+
+    .gap-pages-selector {
+        max-height: 200px;
+    }
+}
+
+/* Responsive Design - Mobile */
+@media screen and (max-width: 480px) {
+    .gap-meta-box {
+        padding: 4px;
+    }
+
+    .gap-meta-box-section {
+        padding: 4px;
+        margin-bottom: 10px;
+    }
+
+    .gap-form-group label {
+        font-size: 12px;
+    }
+
+    .gap-form-group .description {
+        font-size: 11px;
+    }
+
+    .gap-form-group input[type="text"],
+    .gap-form-group input[type="number"],
+    .gap-form-group select,
+    .gap-form-group textarea {
+        font-size: 16px;
+        padding: 8px;
+    }
+
+    .gap-form-group textarea {
+        min-height: 80px;
+    }
+
+    .gap-pages-selector {
+        max-height: 150px;
+    }
+
+    .gap-badge {
+        display: block;
+        margin-bottom: 4px;
+    }
+}
