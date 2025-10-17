@@ -80,4 +80,5 @@ function gap_init() {
     GAP_Meta_Boxes::get_instance();
     GAP_Conflict_Detector::get_instance();
     GAP_Admin::get_instance();
+    GAP_Frontend::get_instance();
 }
