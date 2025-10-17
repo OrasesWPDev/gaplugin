@@ -22,61 +22,22 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-/**
- * Plugin version constant
- *
- * Used for cache busting and version tracking.
- *
- * @since 1.0.0
- */
+// Define plugin constants
 define('GAP_VERSION', '1.0.0');
-
-/**
- * Plugin main file constant
- *
- * References the main plugin file.
- *
- * @since 1.0.0
- */
 define('GAP_PLUGIN_FILE', __FILE__);
-
-/**
- * Plugin directory path constant
- *
- * Absolute path to the plugin directory with trailing slash.
- *
- * @since 1.0.0
- */
 define('GAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
-
-/**
- * Plugin directory URL constant
- *
- * URL to the plugin directory with trailing slash.
- *
- * @since 1.0.0
- */
 define('GAP_PLUGIN_URL', plugin_dir_url(__FILE__));
-
-/**
- * Plugin basename constant
- *
- * Used for activation hooks and plugin identification.
- *
- * @since 1.0.0
- */
 define('GAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
 
 /**
- * PSR-4 compliant autoloader
+ * Autoload GAP classes
  *
- * Automatically loads GAP_ prefixed classes from the includes directory.
- * Converts class names to WordPress file naming convention:
- * - GAP_CPT → class-gap-cpt.php
- * - GAP_Meta_Boxes → class-gap-meta-boxes.php
+ * Automatically loads class files from the includes directory when a GAP_ prefixed
+ * class is referenced. Converts class names to file names following WordPress naming
+ * conventions (e.g., GAP_CPT becomes class-gap-cpt.php).
  *
- * @since 1.0.0
  * @param string $class The fully-qualified class name.
+ * @since 1.0.0
  */
 spl_autoload_register(function ($class) {
     // Only load GAP_ prefixed classes
@@ -84,8 +45,7 @@ spl_autoload_register(function ($class) {
         return;
     }
 
-    // Convert class name to file name
-    // GAP_Meta_Boxes → class-gap-meta-boxes.php
+    // Convert class name to file name: GAP_CPT => class-gap-cpt.php
     $class_file = 'class-' . str_replace('_', '-', strtolower($class)) . '.php';
     $file_path = GAP_PLUGIN_DIR . 'includes/' . $class_file;
 
@@ -95,31 +55,19 @@ spl_autoload_register(function ($class) {
     }
 });
 
-/**
- * Plugin activation hook
- *
- * Runs when the plugin is activated.
- * Handled by GAP_Activator::activate()
- *
- * @since 1.0.0
- */
+// Register activation/deactivation hooks
 register_activation_hook(__FILE__, array('GAP_Activator', 'activate'));
-
-/**
- * Plugin deactivation hook
- *
- * Runs when the plugin is deactivated.
- * Handled by GAP_Activator::deactivate()
- *
- * @since 1.0.0
- */
 register_deactivation_hook(__FILE__, array('GAP_Activator', 'deactivate'));
 
+// Initialize plugin on plugins_loaded
+add_action('plugins_loaded', 'gap_init');
+
 /**
- * Initialize the plugin
+ * Initialize the GA Plugin
  *
  * Loads text domain for internationalization and initializes all core components.
- * Hooked to plugins_loaded to ensure WordPress core is fully loaded.
+ * This function is hooked to 'plugins_loaded' to ensure all WordPress functions
+ * are available before initialization.
  *
  * @since 1.0.0
  */
@@ -131,9 +79,6 @@ function gap_init() {
     GAP_CPT::get_instance();
     GAP_Meta_Boxes::get_instance();
     GAP_Conflict_Detector::get_instance();
-    GAP_Frontend::get_instance();
     GAP_Admin::get_instance();
+    GAP_Frontend::get_instance();
 }
-
-// Hook initialization to plugins_loaded
-add_action('plugins_loaded', 'gap_init');
