@@ -1,0 +1,43 @@
+# WordPress Core Files
+wp-config.php
+wp-config-sample.php
+.htaccess
+sitemap.xml
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE Files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Logs and Debug Files
+*.log
+logs/
+error_log
+debug.log
+
+# Dependencies
+vendor/
+node_modules/
+
+# Build Artifacts
+dist/
+build/
+*.zip
+
+# Environment Files
+.env
+.env.local
+
+# Testing
+phpunit.xml
+.phpunit.result.cache
