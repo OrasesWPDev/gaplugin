@@ -365,12 +365,35 @@ This triggers:
 
 ### Deployment to Local
 
-**Quick Sync (During Development):**
+**Production Deployment (Recommended):**
+```bash
+# Deploy only production files (excludes development files)
+./tools/deploy-to-local.sh
+```
+
+This script deploys ONLY production files:
+- ✅ `ga-plugin.php` (main plugin file)
+- ✅ `includes/` (core PHP classes)
+- ✅ `assets/` (CSS and JS)
+- ✅ `languages/` (translations)
+- ✅ `LICENSE.txt`
+- ✅ `README.md`
+- ✅ `CHANGELOG.md`
+
+Development files are EXCLUDED:
+- ❌ `tests/` directory
+- ❌ `vendor/` directory
+- ❌ `composer.json`, `composer.lock`
+- ❌ `phpunit.xml`, `phpcs.xml`
+- ❌ Development reports (PHPCS, SECURITY, TESTING)
+- ❌ Git and IDE files
+
+**Quick Sync (During Development - Full Files):**
 ```
 Request: "Deploy to local"
 
 local-testing-specialist executes:
-- rsync files to Local WordPress
+- rsync ALL files to Local WordPress (includes dev files)
 - Verify deployment
 - Report status
 ```
