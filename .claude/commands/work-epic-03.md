@@ -4,7 +4,26 @@ description: Execute all 9 tasks in EPIC-03 (Conflict Detection & Resolution)
 
 You are being instructed to execute EPIC-03 development. Follow these instructions immediately:
 
-Use the Task tool:
+**⚠️ CRITICAL PRE-FLIGHT VALIDATION:**
+
+BEFORE invoking the Task tool, you MUST validate the workflow:
+
+1. Check current branch: `git branch --show-current`
+2. If on "main" → STOP and ERROR:
+   ```
+   ❌ ERROR: Cannot execute EPIC on main branch
+   ✅ Required: Use /start-epic 03 first
+   ```
+3. If NOT on "epic-03-conflict-detection" → Check if branch exists
+   - If exists: `git checkout epic-03-conflict-detection`
+   - If not: STOP and ERROR:
+     ```
+     ❌ ERROR: Epic branch not found
+     ✅ Required: Use /start-epic 03 first
+     ```
+4. Only proceed if on epic-03-conflict-detection branch
+
+After validation passes, use the Task tool:
 - subagent_type: "general-purpose"
 - description: "Execute EPIC-03 Conflict Detection & Resolution"
 - prompt:

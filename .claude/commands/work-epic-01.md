@@ -4,7 +4,26 @@ description: Execute all 9 tasks in EPIC-01 (Foundation & Core Plugin)
 
 You are being instructed to execute EPIC-01 development. Follow these instructions immediately:
 
-Use the Task tool with these parameters:
+**⚠️ CRITICAL PRE-FLIGHT VALIDATION:**
+
+BEFORE invoking the Task tool, you MUST validate the workflow:
+
+1. Check current branch: `git branch --show-current`
+2. If on "main" → STOP and ERROR:
+   ```
+   ❌ ERROR: Cannot execute EPIC on main branch
+   ✅ Required: Use /start-epic 01 first
+   ```
+3. If NOT on "epic-01-foundation" →Check if branch exists
+   - If exists: `git checkout epic-01-foundation`
+   - If not: STOP and ERROR:
+     ```
+     ❌ ERROR: Epic branch not found
+     ✅ Required: Use /start-epic 01 first
+     ```
+4. Only proceed if on epic-01-foundation branch
+
+After validation passes, use the Task tool with these parameters:
 
 - subagent_type: "general-purpose"
 - description: "Execute EPIC-01 Foundation & Core Plugin"

@@ -4,6 +4,27 @@ description: Execute all 7 tasks in EPIC-00 (Project Setup & Infrastructure) aut
 
 You are being instructed to execute EPIC-00 development. Follow these instructions immediately:
 
+**⚠️ CRITICAL PRE-FLIGHT VALIDATION:**
+
+BEFORE invoking the Task tool, you MUST validate the workflow:
+
+1. Check current branch: `git branch --show-current`
+2. If on "main" → STOP and ERROR:
+   ```
+   ❌ ERROR: Cannot execute EPIC on main branch
+   ✅ Required: Use /start-epic 00 first
+   ```
+3. If NOT on "epic-00-project-setup" → Check if branch exists
+   - If exists: `git checkout epic-00-project-setup`
+   - If not: STOP and ERROR:
+     ```
+     ❌ ERROR: Epic branch not found
+     ✅ Required: Use /start-epic 00 first
+     ```
+4. Only proceed if on epic-00-project-setup branch
+
+After validation passes:
+
 1. Use the Task tool with these parameters:
    - subagent_type: "general-purpose"
    - description: "Execute EPIC-00 Project Setup"

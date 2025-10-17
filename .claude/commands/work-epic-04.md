@@ -4,7 +4,26 @@ description: Execute all 8 tasks in EPIC-04 (Frontend Output & Script Injection)
 
 You are being instructed to execute EPIC-04 development. Follow these instructions immediately:
 
-Use the Task tool:
+**⚠️ CRITICAL PRE-FLIGHT VALIDATION:**
+
+BEFORE invoking the Task tool, you MUST validate the workflow:
+
+1. Check current branch: `git branch --show-current`
+2. If on "main" → STOP and ERROR:
+   ```
+   ❌ ERROR: Cannot execute EPIC on main branch
+   ✅ Required: Use /start-epic 04 first
+   ```
+3. If NOT on "epic-04-frontend-output" → Check if branch exists
+   - If exists: `git checkout epic-04-frontend-output`
+   - If not: STOP and ERROR:
+     ```
+     ❌ ERROR: Epic branch not found
+     ✅ Required: Use /start-epic 04 first
+     ```
+4. Only proceed if on epic-04-frontend-output branch
+
+After validation passes, use the Task tool:
 - subagent_type: "general-purpose"
 - description: "Execute EPIC-04 Frontend Output & Script Injection"
 - prompt:
