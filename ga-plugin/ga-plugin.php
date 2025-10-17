@@ -18,16 +18,16 @@
  */
 
 // Prevent direct access
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 // Define plugin constants
-define('GAP_VERSION', '1.0.0');
-define('GAP_PLUGIN_FILE', __FILE__);
-define('GAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('GAP_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('GAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
+define( 'GAP_VERSION', '1.0.0' );
+define( 'GAP_PLUGIN_FILE', __FILE__ );
+define( 'GAP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'GAP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'GAP_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 /**
  * Autoload GAP classes
@@ -39,28 +39,30 @@ define('GAP_PLUGIN_BASENAME', plugin_basename(__FILE__));
  * @param string $class The fully-qualified class name.
  * @since 1.0.0
  */
-spl_autoload_register(function ($class) {
-    // Only load GAP_ prefixed classes
-    if (strpos($class, 'GAP_') !== 0) {
-        return;
-    }
+spl_autoload_register(
+	function ( $class ) {
+		// Only load GAP_ prefixed classes
+		if ( strpos( $class, 'GAP_' ) !== 0 ) {
+			return;
+		}
 
-    // Convert class name to file name: GAP_CPT => class-gap-cpt.php
-    $class_file = 'class-' . str_replace('_', '-', strtolower($class)) . '.php';
-    $file_path = GAP_PLUGIN_DIR . 'includes/' . $class_file;
+		// Convert class name to file name: GAP_CPT => class-gap-cpt.php
+		$class_file = 'class-' . str_replace( '_', '-', strtolower( $class ) ) . '.php';
+		$file_path = GAP_PLUGIN_DIR . 'includes/' . $class_file;
 
-    // Load file if it exists
-    if (file_exists($file_path)) {
-        require_once $file_path;
-    }
-});
+		// Load file if it exists
+		if ( file_exists( $file_path ) ) {
+			require_once $file_path;
+		}
+	}
+);
 
 // Register activation/deactivation hooks
-register_activation_hook(__FILE__, array('GAP_Activator', 'activate'));
-register_deactivation_hook(__FILE__, array('GAP_Activator', 'deactivate'));
+register_activation_hook( __FILE__, array( 'GAP_Activator', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'GAP_Activator', 'deactivate' ) );
 
 // Initialize plugin on plugins_loaded
-add_action('plugins_loaded', 'gap_init');
+add_action( 'plugins_loaded', 'gap_init' );
 
 /**
  * Initialize the GA Plugin
@@ -72,13 +74,13 @@ add_action('plugins_loaded', 'gap_init');
  * @since 1.0.0
  */
 function gap_init() {
-    // Load text domain for internationalization
-    load_plugin_textdomain('ga-plugin', false, dirname(GAP_PLUGIN_BASENAME) . '/languages');
+	// Load text domain for internationalization
+	load_plugin_textdomain( 'ga-plugin', false, dirname( GAP_PLUGIN_BASENAME ) . '/languages' );
 
-    // Initialize core components using singleton pattern
-    GAP_CPT::get_instance();
-    GAP_Meta_Boxes::get_instance();
-    GAP_Conflict_Detector::get_instance();
-    GAP_Admin::get_instance();
-    GAP_Frontend::get_instance();
+	// Initialize core components using singleton pattern
+	GAP_CPT::get_instance();
+	GAP_Meta_Boxes::get_instance();
+	GAP_Conflict_Detector::get_instance();
+	GAP_Admin::get_instance();
+	GAP_Frontend::get_instance();
 }
