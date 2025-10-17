@@ -1,101 +1,112 @@
 ---
-description: Execute all development tasks in a specific epic automatically
+description: Index of epic execution commands - use specific /work-epic-XX commands to execute
 ---
 # /work-epic
 
-! bash /Users/chadmacbook/projects/gaplugin-v2/tools/epic_executor.sh {epic_number}
+This command is now split into individual epic-specific commands for reliable execution.
 
-**CRITICAL INSTRUCTION TO CLAUDE:**
+## Available Commands
 
-If the bash script above outputs "EXECUTION TRIGGER CREATED", you MUST IMMEDIATELY invoke the Task tool with these exact parameters:
+Execute specific epics using these commands:
+
+### EPIC-00: Project Setup & Infrastructure (7 tasks)
+```
+/work-epic-00
+```
+**Status:** Ready to execute
+**Duration:** ~1.6 hours
+**Dependencies:** None (starting point)
+
+### EPIC-01: Foundation & Core Plugin (9 tasks)
+```
+/work-epic-01
+```
+**Status:** Blocked until EPIC-00 complete
+**Duration:** ~2.5 hours
+**Dependencies:** EPIC-00
+
+### EPIC-02: Admin Interface & Settings (9 tasks)
+```
+/work-epic-02
+```
+**Status:** Blocked until EPIC-01 complete
+**Duration:** ~4.5 hours
+**Dependencies:** EPIC-01
+
+### EPIC-03: Conflict Detection & Resolution (9 tasks)
+```
+/work-epic-03
+```
+**Status:** Blocked until EPIC-01 complete
+**Duration:** ~5.5 hours
+**Dependencies:** EPIC-01
+
+### EPIC-04: Frontend Output & Script Injection (8 tasks)
+```
+/work-epic-04
+```
+**Status:** Blocked until EPIC-01 complete
+**Duration:** ~4.0 hours
+**Dependencies:** EPIC-01
+
+### EPIC-05: Testing, Security & Launch Prep (11 tasks)
+```
+/work-epic-05
+```
+**Status:** Blocked until EPIC-02, 03, 04 complete
+**Duration:** ~12.5 hours
+**Dependencies:** EPIC-02, EPIC-03, EPIC-04
+
+## Execution Sequence
+
+The recommended execution order:
 
 ```
-Tool: Task
-Parameters:
-  subagent_type: "general-purpose"
-  description: "Execute EPIC-{epic_number} Development"
-  prompt: """
-You are the epic-orchestrator-executor agent. Execute EPIC-{epic_number} completely.
-
-CRITICAL: This is ACTUAL EXECUTION, not planning. You will:
-1. Create actual files
-2. Write actual code
-3. Make actual git commits
-4. Update the MASTER-DEVELOPMENT-PLAN.md with [✓] marks
-
-Reference files:
-- Agent definition: .claude/agents/epic-orchestrator-executor.md
-- Development plan: docs/development/MASTER-DEVELOPMENT-PLAN.md
-- Epic tasks: docs/tickets/EPIC-{epic_number}-*/
-
-## Phase 1: Initialize
-1. Read MASTER-DEVELOPMENT-PLAN.md to get all tasks for EPIC-{epic_number}
-2. Count total tasks (user stories + technical tasks)
-3. Create execution todo list
-
-## Phase 2: Execute Each Task
-For EACH task in sequential order:
-
-1. Read the task specification file
-2. Implement the actual code/files required
-3. Validate the implementation
-4. Create a git commit with proper message
-5. Update MASTER-DEVELOPMENT-PLAN.md - change [ ] to [✓]
-6. Report task completion
-
-## Phase 3: Quality Assurance
-1. Run validation on all created files
-2. Ensure all tasks are marked complete
-3. Verify git commits were created
-
-## Phase 4: Final Report
-Generate completion report showing:
-- Tasks completed (X/X)
-- Files created
-- Commits made
-- Epic status: COMPLETE
-
-Start immediately with Phase 1.
-"""
+1. /work-epic-00  (Required first - sets up project structure)
+   ↓
+2. /work-epic-01  (Required second - creates core plugin)
+   ↓
+3. Run in parallel (all depend on EPIC-01):
+   - /work-epic-02  (Admin interface)
+   - /work-epic-03  (Conflict detection)
+   - /work-epic-04  (Frontend output)
+   ↓
+4. /work-epic-05  (Final - testing & launch)
 ```
 
-**DO NOT** explain what will happen. **DO NOT** describe the process. **IMMEDIATELY INVOKE THE TASK TOOL** if the trigger was created.
+## What Each Command Does
 
----
+When you run `/work-epic-XX`, it:
 
-## What This Command Does
+1. ✅ **Invokes epic-orchestrator-executor agent** automatically
+2. ✅ **Reads all task specifications** from docs/tickets/EPIC-XX/
+3. ✅ **Implements actual code** and creates files
+4. ✅ **Creates git commits** for each completed task
+5. ✅ **Updates MASTER-DEVELOPMENT-PLAN.md** with [✓] marks
+6. ✅ **Reports completion** with full status
 
-The `/work-epic` command executes all development tasks in a specific epic:
+## Monitoring Progress
 
-**Usage:**
+While an epic executes, monitor progress with:
+
 ```bash
-/work-epic 00    # Execute EPIC-00 (Project Setup) - 7 tasks
-/work-epic 01    # Execute EPIC-01 (Foundation) - 9 tasks
-/work-epic 02    # Execute EPIC-02 (Admin Interface) - 8 tasks
-/work-epic 03    # Execute EPIC-03 (Conflict Detection) - 9 tasks
-/work-epic 04    # Execute EPIC-04 (Frontend Output) - 8 tasks
-/work-epic 05    # Execute EPIC-05 (Testing & Launch) - 11 tasks
+# Real-time dashboard
+python3 tools/agent_visualizer.py --refresh-rate 2 --no-clear
+
+# Or check status
+/epic-status XX
 ```
 
-**Execution Flow:**
-1. Creates execution trigger via bash script
-2. Invokes epic-orchestrator-executor agent
-3. Agent reads all tasks from MASTER-DEVELOPMENT-PLAN.md
-4. Executes each task sequentially:
-   - Reads task specification
-   - Implements code
-   - Validates quality
-   - Creates git commit
-   - Updates progress
-5. Runs quality assurance
-6. Generates completion report
+## Troubleshooting
 
-**Expected Results:**
-- All task files created
-- All code implemented
-- All commits made
-- MASTER-DEVELOPMENT-PLAN.md updated with [✓] marks
-- Epic marked complete
+If a command doesn't execute:
+1. Verify dependencies are met (check MASTER-DEVELOPMENT-PLAN.md)
+2. Ensure you're using the correct command format: `/work-epic-00` (not `/work-epic 00`)
+3. Check that previous epics completed successfully
+4. Review git log to verify commits were created
 
-**Dependencies:**
-- EPIC-00 → EPIC-01 → (EPIC-02, 03, 04 parallel) → EPIC-05
+## See Also
+
+- [Epic Orchestrator Executor](../agents/epic-orchestrator-executor.md) - Agent that executes tasks
+- [Master Development Plan](../../docs/development/MASTER-DEVELOPMENT-PLAN.md) - All task specifications
+- [Agent Registry](../agents/agent-registry.json) - Available agents
