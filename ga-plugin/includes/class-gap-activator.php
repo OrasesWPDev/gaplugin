@@ -1,13 +1,9 @@
 <?php
 /**
- * Plugin Activator
- *
- * Handles plugin activation and deactivation lifecycle events.
- * This class manages plugin setup on activation and cleanup on deactivation
- * while preserving all plugin data (data is only removed on uninstall).
+ * Plugin Activation and Deactivation Handler
  *
  * @package GA_Plugin
- * @since 1.0.0
+ * @since   1.0.0
  */
 
 // Prevent direct access
@@ -16,47 +12,47 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Class GAP_Activator
+ * GAP_Activator Class
  *
- * Handles plugin activation and deactivation hooks.
+ * Handles plugin activation and deactivation tasks.
+ *
+ * @since 1.0.0
  */
 class GAP_Activator {
 
     /**
-     * Plugin activation
+     * Plugin activation handler
      *
-     * Runs when the plugin is activated.
-     * - Flushes rewrite rules to ensure CPT permalinks work correctly
-     * - Saves plugin version to options for future upgrade routines
-     * - Records activation timestamp for analytics
+     * Runs when the plugin is activated. Flushes rewrite rules to ensure
+     * the tracking_script custom post type is properly registered.
      *
      * @since 1.0.0
      */
     public static function activate() {
-        // Flush rewrite rules to ensure CPT permalinks work
+        // Register the custom post type so its rewrite rules are known
+        if (class_exists('GAP_CPT')) {
+            GAP_CPT::register_post_type();
+        }
+
+        // Flush rewrite rules to ensure CPT URLs work
         flush_rewrite_rules();
 
-        // Save plugin version to options for future upgrades
-        update_option('gap_version', GAP_VERSION);
-
-        // Save activation timestamp for reference
-        update_option('gap_activated', current_time('timestamp'));
+        // Set default options if needed
+        if (get_option('gap_version') === false) {
+            add_option('gap_version', GAP_VERSION);
+        }
     }
 
     /**
-     * Plugin deactivation
+     * Plugin deactivation handler
      *
-     * Runs when the plugin is deactivated.
-     * - Flushes rewrite rules to clean up CPT permalinks
-     * - Preserves ALL plugin data (data should only be removed on uninstall)
+     * Runs when the plugin is deactivated. Flushes rewrite rules to clean up
+     * any custom post type rewrite rules.
      *
      * @since 1.0.0
      */
     public static function deactivate() {
-        // Flush rewrite rules to clean up CPT permalinks
+        // Flush rewrite rules to clean up
         flush_rewrite_rules();
-
-        // DO NOT delete any data - data should only be removed on uninstall
-        // This allows users to reactivate the plugin without data loss
     }
 }
